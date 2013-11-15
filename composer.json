@@ -1,0 +1,24 @@
+{
+	"name": "polycademy/snapsearch-client-php",
+	"description": "PHP HTTP Client Middleware Libraries for SnapSearch",
+	"keywords": ["seo", "search engine optimisation", "javascript", "ajax"],
+	"homepage": "https://github.com/Polycademy/snapsearch_clients",
+	"license": "MIT",
+	"authors": [{
+		"name": "Roger Qiu",
+		"email": "roger.qiu@polycademy.com",
+		"homepage": "http://polycademy.com",
+		"role": "Founder and Developer"
+	}],
+	"require-dev": {
+		"codeception/codeception": "1.7.0.2"
+	},
+	"config": {
+		"bin-dir": "bin/"
+	},
+	"autoload": {
+		"psr-0": {
+			"SnapSearchClientPHP": "src"
+		}
+	}
+}
