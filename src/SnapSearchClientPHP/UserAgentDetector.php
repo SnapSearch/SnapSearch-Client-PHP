@@ -24,17 +24,34 @@ class UserAgentDetector{
 
 	public function detect(){
 
+		//empty user agents is also possible so return false
 		if(empty($this->ua)){
 			return false;
 		}
 
+		foreach($this->robots['ignore'] as $key => $ignored_robot){
+			$this->robots['ignore'][$key] = preg_quote($ignored_robot);
+		}
+
+		foreach($this->robots['match'] as $key => $matched_robot){
+			$this->robots['match'][$key] = preg_quote($matched_robot);
+		}
+
+		$ignore_regex = '/' . implode('|', $this->robots['ignore']) . '/i';
+		$match_regex = '/' . implode('|', $this->robots['match']) . '/i';
+
 		//first detect ignore, if true, then return false
+		if(preg_match($ignore_regex, $this->ua) === 1){
+			return false;
+		}
 
 		//then detect match, if true, then return true
+		if(preg_match($match_regex, $this->ua) === 1){
+			return true;
+		}
 
 		//if no match at all, return false
-		
-		//empty user agents is also possible so return false
+		return false;
 
 	}
 
@@ -75,7 +92,7 @@ class UserAgentDetector{
 
 	protected function parse_robots_json($robots_json){
 
-		if(file_exists($robots_json) AND is_readable($robots_json)){
+		if(is_file($robots_json) AND is_readable($robots_json)){
 			$robots = file_get_contents($robots_json);
 		}else{
 			throw new \Exception('The robots json file could not be found or could not be read.');
