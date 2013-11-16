@@ -56,7 +56,7 @@ class Detector{
 
 	public function detect(){
 
-		//empty user agents is also possible so return false
+		//let's not take any chances, empty user agents will not be intercepted
 		if(empty($this->ua)){
 			return false;
 		}
