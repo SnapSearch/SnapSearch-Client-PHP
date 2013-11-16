@@ -7,23 +7,20 @@ use Client;
 
 class Interceptor{
 
-	protected $routes;
-	protected $extensions;
-	protected $request_parameters;
-
 	public function __construct(Detector $detector, Client $client){
 
-		$this->detector = $detector;
-		$this->client = $client;
+		$this->detector = ($detector) : new Detector;
+		$this->client = ($client) : new Client;
 
 	}
 
 	public function intercept(){
 
-		//should this echo the results?
-		//intercept returns true
-		//if intercept either returns true or the content
-		//it's up to the developer to display the content and exit the app, or do further transformations
+		if($this->detector->detect()){
+			return $this->client->request();
+		}
+
+		return false;
 
 	}
 
