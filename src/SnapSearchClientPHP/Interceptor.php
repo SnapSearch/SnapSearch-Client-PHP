@@ -2,7 +2,7 @@
 
 namespace SnapSearchClientPHP;
 
-use UserAgentDetector;
+use Detector;
 use Client;
 
 class Interceptor{
@@ -11,7 +11,7 @@ class Interceptor{
 	protected $extensions;
 	protected $request_parameters;
 
-	public function __construct(UserAgentDetector $detector, Client $client){
+	public function __construct(Detector $detector, Client $client){
 
 		$this->detector = $detector;
 		$this->client = $client;
@@ -26,6 +26,5 @@ class Interceptor{
 		//it's up to the developer to display the content and exit the app, or do further transformations
 
 	}
-
 
 }
