@@ -84,16 +84,12 @@ class Detector{
 		if($this->check_files AND !empty($this->document_root) AND !empty($this->request_uri)){
 
 			//remove the trailing / or \ from the document root if it exists
-			if(substr($this->document_root, -1) == DIRECTORY_SEPARATOR){
-				$this->document_root = substr($this->document_root, 0, -1);
-			}
+			$this->document_root = rtrim($this->document_root, DIRECTORY_SEPARATOR);
 
 			//remove the leading / or \ from request uri if it exists
-			if(substr($this->request_uri, 0, 1) == DIRECTORY_SEPARATOR){
-				$this->request_uri = substr($this->request_uri, 1);
-			}
+			$this->request_uri = ltrim($this->request_uri, DIRECTORY_SEPARATOR);
 
-			$absolute_path = $this->document_root . DIRECTORY_SEPARATOR . $request_uri;
+			$absolute_path = $this->document_root . DIRECTORY_SEPARATOR . $this->request_uri;
 			$path_info = pathinfo($absolute_path);
 
 			if(
