@@ -15,5 +15,10 @@ class Client{
 		$this->api_url = ($api_url) ? $api_url : 'http://snapsearch.io/api/v1/robot';
 
 	}
+
+	public function request(){
+
+		
+	}
 	
 }
