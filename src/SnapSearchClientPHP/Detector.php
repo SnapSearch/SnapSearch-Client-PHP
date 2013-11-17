@@ -2,38 +2,33 @@
 
 namespace SnapSearchClientPHP;
 
+use Symfony\Component\HttpFoundation\Request;
+
 class Detector{
 
-	protected $ua;
+	protected $request;
 	protected $robots;
 	protected $ignored_routes;
-	protected $check_files;
-	protected $document_root;
-	protected $request_uri;
+	protected $check_static_files;
 
 	public function __construct(
-		$ua = false, 
-		$robots_json = false, 
-		array $ignored_routes = null, 
-		$check_files = false,
-		$document_root = false,
-		$request_uri = false
+		Request $request = null,
+		$robots_json = false,
+		array $ignored_routes = null,
+		$check_static_files = false
 	){
 
-		if(!empty($ua)){
-			$this->ua = (string) $ua;
-		}elseif(!empty($_SERVER['HTTP_USER_AGENT'])){
-			$this->ua = $_SERVER['HTTP_USER_AGENT'];
-		}else{
-			$this->ua = false;
-		}
-
-		//does this get relative to the file, or relative to the executor? IT SHOULD BE RELATIVE TO THE FILE.
+		//note that the user agent may be false
+		$this->request = ($request) : Request::createFromGlobals();
 		$robots_json = ($robots_json) ? $robots_json : './Robots.json';
 		$this->robots = $this->parse_robots_json($robots_json);
 		$this->ignored_routes = ($ignored_routes) ? $ignored_routes : array();
-		$this->check_files = (boolean) $check_files;
+		$this->check_static_files = (boolean) $check_static_files;
 
+		//we may need to url_decode the Document root and Request Uri
+
+
+/*
 		if(!empty($document_root)){
 			$this->document_root = $document_root;
 		}elseif(!empty($_SERVER['DOCUMENT_ROOT'])){
@@ -51,6 +46,7 @@ class Detector{
 			$this->request_uri = false;
 		}
 		$this->request_uri = url_decode(str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $this->request_uri));
+ */
 
 	}
 
@@ -156,6 +152,15 @@ class Detector{
 			$this->robots['ignore'][] = $robots;
 		}
 
+	}
+
+	public function get_url(){
+
+		//we need to get the current url
+		//this current url wont' be able to get the hash portion and hence hash bang
+		//however if the meta exists, Google will send the hash bang portion to _escaped_fragment_
+		//we'll need to reconstruct the url if that exists
+		//the value of _escaped_fragment_ will be added to the scheme + host + port + path, then add all subsequent query parameters...
 	}
 
 	protected function parse_robots_json($robots_json){

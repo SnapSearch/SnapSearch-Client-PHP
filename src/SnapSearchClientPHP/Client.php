@@ -3,6 +3,7 @@
 namespace SnapSearchClientPHP;
 
 use Httpful\Request as Api;
+use SnapSearchException;
 
 class Client{
 
@@ -42,22 +43,21 @@ class Client{
 		
 		}catch(\Exception $e){
 
-			throw new \Exception('Could not establish a connection to SnapSearch.');
+			throw new SnapSearchException('Could not establish a connection to SnapSearch.');
 
 		}
 
 		$response = json_decode($response, true);
 
-		//error checking
 		if($response['code'] == 'success'){
 
+			//will return status, headers (array of name => value), html, screenshot, date
 			return $response['content'];
 
 		}elseif($response['code'] == 'validation_error'){
 
 			//means that something was incorrect from the request parameters or the url could not be accessed
-			$this->errors = $response['content'];
-			throw new \Exception('Validation error from SnapSearch. Check your request parameters.');
+			throw new SnapSearchException('Validation error from SnapSearch. Check your request parameters.', $response['content']);
 
 		}else{
 
@@ -66,12 +66,6 @@ class Client{
 
 		}
 		
-	}
-
-	public function get_errors(){
-
-		return $this->errors;
-
 	}
 	
 }
