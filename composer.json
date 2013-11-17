@@ -11,7 +11,8 @@
 		"role": "Founder and Developer"
 	}],
 	"require": {
-		"nategood/httpful": "0.2.11"
+		"nategood/httpful": "0.2.11",
+		"symfony/http-foundation": "2.3.7"
 	},
 	"require-dev": {
 		"codeception/codeception": "1.8.0.1"
