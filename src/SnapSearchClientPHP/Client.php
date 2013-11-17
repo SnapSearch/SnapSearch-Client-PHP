@@ -36,6 +36,7 @@ class Client{
 
 			$response = $this->api
 						->post($this->api_url)
+						->addHeader('Authorization', 'Token ' . $this->api_key)
 						->timeout(30)
 						->body($this->request_parameters, 'json')
 						->send()
