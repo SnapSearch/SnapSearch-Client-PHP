@@ -10,8 +10,11 @@
 		"homepage": "http://polycademy.com",
 		"role": "Founder and Developer"
 	}],
+	"require": {
+		"nategood/httpful": "0.2.11"
+	},
 	"require-dev": {
-		"codeception/codeception": "1.7.0.2"
+		"codeception/codeception": "1.8.0.1"
 	},
 	"config": {
 		"bin-dir": "bin/"
