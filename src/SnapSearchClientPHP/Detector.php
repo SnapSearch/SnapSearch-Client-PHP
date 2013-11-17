@@ -15,7 +15,7 @@ class Detector{
 		$ua = false, 
 		$robots_json = false, 
 		array $ignored_routes = null, 
-		$check_files = true,
+		$check_files = false,
 		$document_root = false,
 		$request_uri = false
 	){
