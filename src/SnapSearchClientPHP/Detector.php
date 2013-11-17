@@ -8,12 +8,14 @@ class Detector{
 
 	protected $request;
 	protected $robots;
+	protected $matched_routes;
 	protected $ignored_routes;
 	protected $check_static_files;
 
 	public function __construct(
 		Request $request = null,
 		$robots_json = false,
+		array $matched_routes = null,
 		array $ignored_routes = null,
 		$check_static_files = false
 	){
@@ -22,6 +24,7 @@ class Detector{
 		$this->request = ($request) : Request::createFromGlobals();
 		$robots_json = ($robots_json) ? $robots_json : './Robots.json';
 		$this->robots = $this->parse_robots_json($robots_json);
+		$this->matched_routes = ($matched_routes) ? $matched_routes : array();
 		$this->ignored_routes = ($ignored_routes) ? $ignored_routes : array();
 		$this->check_static_files = (boolean) $check_static_files;
 
@@ -51,6 +54,8 @@ class Detector{
 	}
 
 	public function detect(){
+
+		//WE ALSO SHOULD match against the HTTP protocol or HTTPS protocol.
 
 		//let's not take any chances, empty user agents will not be intercepted
 		if(empty($this->ua)){
