@@ -20,8 +20,8 @@ class Interceptor{
 	public function intercept(){
 
 		if($this->detector->detect()){
-			$current_url = $this->detector->get_url();
-			return $this->client->request($current_url);
+			$raw_current_url = $this->detector->get_encoded_url();
+			return $this->client->request($raw_current_url);
 		}
 
 		return false;
