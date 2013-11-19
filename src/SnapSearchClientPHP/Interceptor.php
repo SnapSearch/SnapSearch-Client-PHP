@@ -2,8 +2,8 @@
 
 namespace SnapSearchClientPHP;
 
-use Detector;
-use Client;
+use SnapSearchClientPHP\Detector;
+use SnapSearchClientPHP\Client;
 
 class Interceptor{
 

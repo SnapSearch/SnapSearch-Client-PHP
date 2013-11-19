@@ -2,14 +2,9 @@
 
 namespace SnapSearchClientPHP;
 
-use Codeception\Util\Stub;
-use Codeception\Util\Debug;
-
 use Symfony\Component\HttpFoundation\Request;
  
 class DetectorTest extends \Codeception\TestCase\Test{
-
-	protected $codeGuy;
 
 	public $normal_browser = array ( 
 		'_GET'		=> array(),
@@ -139,14 +134,6 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			'REQUEST_URI' => '/snapsearch/?blah=yay&_escaped_fragment_=key1%3Dlol',
 		),
 	);
-
-	protected function _before(){
-
-	}
-
-	protected function _after(){
-
-	}
 
 	public function testNormalBrowserRequestShouldNotBeIntercepted(){
 

@@ -3,7 +3,7 @@
 namespace SnapSearchClientPHP;
 
 use Httpful\Request as Api;
-use SnapSearchException;
+use SnapSearchClientPHP\SnapSearchException;
 
 class Client{
 
