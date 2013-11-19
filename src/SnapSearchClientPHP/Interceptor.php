@@ -10,10 +10,10 @@ class Interceptor{
 	protected $detector;
 	protected $client;
 
-	public function __construct(Client $client, Detector $detector = null){
+	public function __construct(Client $client, Detector $detector){
 
 		$this->client = $client;
-		$this->detector = ($detector) : new Detector;
+		$this->detector = $detector;
 
 	}
 
