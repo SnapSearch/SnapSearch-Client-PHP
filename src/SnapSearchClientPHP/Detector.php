@@ -14,18 +14,17 @@ class Detector{
 
 	public function __construct(
 		Request $request = null,
-		$robots_json = false,
-		array $matched_routes = null,
 		array $ignored_routes = null,
+		array $matched_routes = null,
+		$robots_json = false,
 		$check_static_files = false
 	){
 
-		//note that the user agent may be false
-		$this->request = ($request) : Request::createFromGlobals();
-		$robots_json = ($robots_json) ? $robots_json : './Robots.json';
-		$this->robots = $this->parse_robots_json($robots_json);
-		$this->matched_routes = ($matched_routes) ? $matched_routes : array();
+		$this->request = ($request) ? $request : Request::createFromGlobals();
 		$this->ignored_routes = ($ignored_routes) ? $ignored_routes : array();
+		$this->matched_routes = ($matched_routes) ? $matched_routes : array();
+		$robots_json = ($robots_json) ? $robots_json : dirname(__FILE__) . '/Robots.json';
+		$this->robots = $this->parse_robots_json($robots_json);
 		$this->check_static_files = (boolean) $check_static_files;
 
 	}
@@ -33,12 +32,21 @@ class Detector{
 	public function detect(){
 
 		$user_agent = $this->request->headers->get('user-agent');
-		$real_url = $this->get_decoded_url();
 		$real_path = $this->get_decoded_path();
 		$document_root = $this->request->server->get('DOCUMENT_ROOT');
 
+		//only intercept on get requests, SnapSearch robot cannot submit a POST, PUT or DELETE request
+		if($this->request->getMethod() != 'GET'){
+			return false;
+		}
+
 		//let's not take any chances, empty user agents will not be intercepted
 		if(empty($user_agent)){
+			return false;
+		}
+
+		//only intercept on http or https protocols
+		if($this->request->getScheme() !=  'http' AND $this->request->getScheme() != 'https'){
 			return false;
 		}
 
@@ -57,7 +65,7 @@ class Detector{
 			$matched_whitelist = false;
 			foreach($this->matched_routes as $matched_route){
 				$matched_route = '/' . $matched_route . '/i';
-				if(preg_match($matched_route, $real_url) === 1){
+				if(preg_match($matched_route, $real_path) === 1){
 					$matched_whitelist = true;
 					break;
 				}
@@ -68,7 +76,7 @@ class Detector{
 		//detect ignored routes
 		foreach($this->ignored_routes as $ignored_route){
 			$ignored_route = '/' . $ignored_route . '/i';
-			if(preg_match($ignored_route, $real_url) === 1){
+			if(preg_match($ignored_route, $real_path) === 1){
 				return false;
 			}
 		}
@@ -149,54 +157,6 @@ class Detector{
 
 	}
 
-	//decoded url is for REGEX (so that the paths are natural)
-	//both of these urls have the _escaped_fragment_ converted back to hash fragment
-	//DECODED URL IS WHAT THE URL SHOULD LOOK LIKE
-	public function get_decoded_url(){
-
-		if($this->request->query->has('_escaped_fragment_')){
-
-			$qs_and_hash = $this->get_real_qs_and_hash_fragment(false);
-
-			$url = 
-				$this->request->getSchemeAndHttpHost() 
-				. $this->request->getBaseUrl() 
-				. $this->request->getPathInfo() 
-				. $qs_and_hash['qs'] 
-				. $qs_and_hash['hash'];
-
-			return $url;
-
-		}else{
-
-			return rawurldecode($this->request->getUri());
-
-		}
-
-	}
-
-	public function get_decoded_path(){
-
-		if($this->request->query->has('_escaped_fragment_')){
-
-			$qs_and_hash = $this->get_real_qs_and_hash_fragment(false);
-
-			$path = 
-				$this->request->getBaseUrl() 
-				. $this->request->getPathInfo() 
-				. $qs_and_hash['qs'] 
-				. $qs_and_hash['hash'];
-
-			return $path;
-
-		}else{
-
-			return rawurldecode($this->request->getRequestUri());
-
-		}
-
-	}
-
 	//raw url is for the Robot
 	//_escaped_fragment_ is converted back to hash fragment
 	//ENCODED URL is the RAW URL
@@ -219,6 +179,28 @@ class Detector{
 		}else{
 
 			return $this->request->getUri();
+
+		}
+
+	}
+
+	protected function get_decoded_path(){
+
+		if($this->request->query->has('_escaped_fragment_')){
+
+			$qs_and_hash = $this->get_real_qs_and_hash_fragment(false);
+
+			$path = 
+				$this->request->getBaseUrl() 
+				. $this->request->getPathInfo() 
+				. $qs_and_hash['qs'] 
+				. $qs_and_hash['hash'];
+
+			return $path;
+
+		}else{
+
+			return rawurldecode($this->request->getRequestUri());
 
 		}
 
