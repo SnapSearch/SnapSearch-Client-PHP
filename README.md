@@ -21,5 +21,3 @@ Run codecept bootstrap then codecept build after changing the yml files, then co
 
 
 Looks like Robots.json will be kept in the repos themselves and just duplicated whenever there's a change.
-
-Check how to handle API limits and Authorization!

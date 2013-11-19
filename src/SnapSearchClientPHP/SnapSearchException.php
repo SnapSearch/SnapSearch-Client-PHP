@@ -7,10 +7,8 @@ class SnapSearchException extends \Exception{
 	protected $errors_array = array();
 
 	public function __construct($message = '', array $errors = array(), $code = 0, \Exception $previous = null){
-
 		parent::__construct($message, $code, $previous);
 		$this->errors_array = $errors;
-
 	}
 
 	/**
@@ -19,16 +17,10 @@ class SnapSearchException extends \Exception{
 	 * @return array array of errors
 	 */
 	public function get_errors() {
-		if(!empty($this->message)){
-			$this->append_error($this->message);
-		}
 		return $this->errors_array;
 	}
 
-	public function get_errors_as_string(){
-		if(!empty($this->message)){
-			$this->append_error($this->message);
-		}
+	public function get_error_string(){
 		return implode(' ', $this->errors_array);
 	}
 
@@ -36,8 +28,12 @@ class SnapSearchException extends \Exception{
 	 * This appends an error to an array of errors. This can be useful for multiple errors at the same time.
 	 * @param  string $error message of the error
 	 */
-	public function append_error($error) {
+	public function append_error($error){
 		$this->errors_array[] = $error;
+	}
+
+	public function prepend_error($error){
+		array_unshift($this->errors_array, $error);
 	}
 
 }
