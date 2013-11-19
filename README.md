@@ -14,10 +14,9 @@ Usage
 
 It is PSR-0 compatible.
 
+Robots.json
+
 Tests
 ----
 
-Run codecept bootstrap then codecept build after changing the yml files, then codecept run.
-
-
-Looks like Robots.json will be kept in the repos themselves and just duplicated whenever there's a change.
+Unit tests are written using Codeception. Codeception has already been bootstrapped (`codecept bootstrap`). To run tests use `codecept run` or `codecept run --debug` for debug messages. If you change the Codeception configuration files or add extra functions to the helpers make sure to run `codecept build` so that the settings take effect.
