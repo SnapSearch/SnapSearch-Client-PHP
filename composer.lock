@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d01bf4094a9fd66147443778f609cb9d",
+    "hash": "1123b528af63d9aa320ca60fcd8e4457",
     "packages": [
         {
             "name": "nategood/httpful",
