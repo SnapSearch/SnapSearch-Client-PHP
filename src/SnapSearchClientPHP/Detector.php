@@ -31,17 +31,13 @@ class Detector{
 
 	public function detect(){
 
-		$user_agent = $this->request->headers->get('user-agent');
+		//the user agent may not exist, so we want to make sure to gets typecast to a string
+		$user_agent = (string) $this->request->headers->get('user-agent');
 		$real_path = $this->get_decoded_path();
 		$document_root = $this->request->server->get('DOCUMENT_ROOT');
 
 		//only intercept on get requests, SnapSearch robot cannot submit a POST, PUT or DELETE request
 		if($this->request->getMethod() != 'GET'){
-			return false;
-		}
-
-		//let's not take any chances, empty user agents will not be intercepted
-		if(empty($user_agent)){
 			return false;
 		}
 
