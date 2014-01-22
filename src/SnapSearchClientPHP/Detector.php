@@ -4,6 +4,9 @@ namespace SnapSearchClientPHP;
 
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Detector detects if the current request is from a search engine robot using the Robots.json file
+ */
 class Detector{
 
 	protected $request;
@@ -12,23 +15,45 @@ class Detector{
 	protected $ignored_routes;
 	protected $check_static_files;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param array   $ignored_routes     Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
+	 * @param array   $matched_routes     Array of whitelisted route regexes, any route not matching will be ignored during detection
+	 * @param Request $request            Symfony Request Object
+	 * @param boolean $robots_json        Absolute path to a the Robots.json file
+	 * @param boolean $check_static_files Switch to check if the path leads to a static file that is not a PHP script. This is prevent SnapSearch from attempting to scrape files that are not HTML. This is by default left off because it is an expensive check, and should be done only if you're hosting a lot of static files.
+	 */
 	public function __construct(
-		Request $request = null,
 		array $ignored_routes = null,
 		array $matched_routes = null,
+		Request $request = null,
 		$robots_json = false,
 		$check_static_files = false
 	){
 
-		$this->request = ($request) ? $request : Request::createFromGlobals();
 		$this->ignored_routes = ($ignored_routes) ? $ignored_routes : array();
 		$this->matched_routes = ($matched_routes) ? $matched_routes : array();
+		$this->request = ($request) ? $request : Request::createFromGlobals();
 		$robots_json = ($robots_json) ? $robots_json : dirname(__FILE__) . '/Robots.json';
 		$this->robots = $this->parse_robots_json($robots_json);
 		$this->check_static_files = (boolean) $check_static_files;
 
 	}
 
+	/**
+	 * Detects if the request came from a search engine robot. It will intercept in cascading order:
+	 * 1. on a GET request
+	 * 2. on an HTTP or HTTPS protocol
+	 * 3. not on any ignored robot user agents
+	 * 4. not on any route not matching the whitelist
+	 * 5. not on any route matching the blacklist
+	 * 6. not on any static files that is not a PHP file if it is detected
+	 * 7. on requests with _escaped_fragment_ query parameter
+	 * 8. on any matched robot user agents
+	 * 
+	 * @return boolean
+	 */
 	public function detect(){
 
 		//the user agent may not exist, so we want to make sure to gets typecast to a string
@@ -56,7 +81,7 @@ class Detector{
 		}
 
 		//if the requested route doesn't match any of the whitelisted routes, then the request is ignored
-		//of course this only runs if there are any routs on the whitelist
+		//of course this only runs if there are any routes on the whitelist
 		if(!empty($this->matched_routes)){
 			$matched_whitelist = false;
 			foreach($this->matched_routes as $matched_route){
@@ -118,6 +143,14 @@ class Detector{
 
 	}
 
+	/**
+	 * Sets a matched or ignored robots array. This replaces the matched or ignored arrays in Robots.json
+	 * 
+	 * @param  array   $robots Array of robots user agents
+	 * @param  boolean $type   Type can be 'ignore' or 'match'
+	 *
+	 * @return boolean
+	 */
 	public function set_robots(array $robots, $type = false){
 
 		if($type){
@@ -133,6 +166,11 @@ class Detector{
 
 	}
 
+	/**
+	 * Adds a single robot or an array of robots to the matched robots in Robots.json
+	 * 
+	 * @param string|array $robots String or array of robot user agents
+	 */
 	public function add_match_robots($robots){
 
 		if(is_array($robots)){
@@ -143,6 +181,11 @@ class Detector{
 
 	}
 
+	/**
+	 * Adds a single robot or an array of robots to the ignored robots in Robots.json
+	 * 
+	 * @param string|array $robots String or array of robot user agents
+	 */
 	public function add_ignore_robots($robots){
 
 		if(is_array($robots)){
@@ -153,10 +196,12 @@ class Detector{
 
 	}
 
-	//raw url is for the Robot
-	//_escaped_fragment_ is converted back to hash fragment
-	//ENCODED URL is the RAW URL
-	//THE RAW URL IS FOR THE ROBOT
+	/**
+	 * Gets the encoded URL that is passed to SnapSearch so that SnapSearch can scrape the encoded URL.
+	 * If _escaped_fragment_ query parameter is used, this is converted back to a hash fragment URL.
+	 * 
+	 * @return string URL intended for SnapSearch
+	 */
 	public function get_encoded_url(){
 
 		if($this->request->query->has('_escaped_fragment_')){
@@ -180,6 +225,12 @@ class Detector{
 
 	}
 
+	/**
+	 * Gets the decoded URL path relevant for detecting matched or ignored routes during detection.
+	 * It is also used for static file detection. 
+	 * 
+	 * @return string
+	 */
 	protected function get_decoded_path(){
 
 		if($this->request->query->has('_escaped_fragment_')){
@@ -203,14 +254,16 @@ class Detector{
 	}
 
 	/**
-	 * Gets the real query string and hash fragment by reversing the Google's _escaped_fragment_ protocol
-	 * to the hash bang mode.
+	 * Gets the real query string and hash fragment by reversing the Google's _escaped_fragment_ protocol to the hash bang mode.
 	 * Google will convert the original url from:
 	 * http://example.com/path#!key=value to http://example.com/path?_escaped_fragment_=key%26value
 	 * Therefore we have to reverse this process to the original url which will be used for snapshotting purposes.
 	 * https://developers.google.com/webmasters/ajax-crawling/docs/specification
-	 * @param  Boolean $encode Whether to rawurlencode the query string or not
-	 * @return Array           Array of query string and hash fragment
+	 * This is used for both getting the encoded url for scraping and the decoded path for detection.
+	 * 
+	 * @param  boolean $encode Whether to rawurlencode the query string or not
+	 * 
+	 * @return array           Array of query string and hash fragment
 	 */
 	protected function get_real_qs_and_hash_fragment($encode){
 
@@ -244,6 +297,15 @@ class Detector{
 
 	}
 
+	/**
+	 * Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
+	 * 
+	 * @param  string $robots_json Absolute path to Robots.json
+	 * 
+	 * @return array
+	 *
+	 * @throws Exception If json decoding didn't work
+	 */
 	protected function parse_robots_json($robots_json){
 
 		if(is_file($robots_json) AND is_readable($robots_json)){

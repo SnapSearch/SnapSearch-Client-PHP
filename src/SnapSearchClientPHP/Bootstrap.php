@@ -2,14 +2,25 @@
 
 namespace SnapSearchClientPHP;
 
+/**
+ * Bootstrap allows users to autoload SnapSearchClientPHP under PSR-0 rules.
+ */
 class Bootstrap{
 
+	/**
+	 * Registers the autoloader.
+	 */
 	public static function register(){
 
 		spl_autoload_register(array('\SnapSearchClientPHP\Bootstrap', 'autoload'));
 
 	}
 
+	/**
+	 * Autoloads the class.
+	 * 
+	 * @param  string $class Namespaced call to a particular class
+	 */
 	public static function autoload($class){
 
 		//path to src folder
