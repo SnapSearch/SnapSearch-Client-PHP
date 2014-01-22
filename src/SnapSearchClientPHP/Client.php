@@ -7,6 +7,7 @@ use SnapSearchClientPHP\SnapSearchException;
 
 class Client{
 
+	protected $api_user;
 	protected $api_key;
 	protected $request_parameters;
 	protected $api_url;
@@ -14,15 +15,17 @@ class Client{
 	protected $errors;
 
 	public function __construct(
-		$api_key, 
+		$api_user, 
+		$api_key,  
 		array $request_parameters = null, 
 		$api_url = false,
 		Api $api = null
 	){
 
+		$this->api_user = $api_user;
 		$this->api_key = $api_key;
 		$this->request_parameters = ($request_parameters) ? $request_parameters : array();
-		$this->api_url = ($api_url) ? $api_url : 'http://snapsearch.io/api/v1/robot';
+		$this->api_url = ($api_url) ? $api_url : 'https://snapsearch.io/api/v1/robot';
 		$this->api = ($api) ? $api : Api::init();
 
 	}
@@ -36,7 +39,7 @@ class Client{
 
 			$response = $this->api
 						->post($this->api_url)
-						->addHeader('Authorization', 'Token ' . $this->api_key)
+						->authenticateWith($this->api_user, $this->api_key)
 						->timeout(30)
 						->body($this->request_parameters, 'json')
 						->send()
