@@ -9,11 +9,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class Detector{
 
-	protected $request;
-	protected $robots;
-	protected $matched_routes;
 	protected $ignored_routes;
+	protected $matched_routes;
+	protected $request;
 	protected $check_static_files;
+	protected $robots;
 
 	/**
 	 * Constructor
