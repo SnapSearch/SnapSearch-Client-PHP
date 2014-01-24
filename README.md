@@ -42,12 +42,10 @@ SnapSearchClientPHP should be best started at the entry point your application. 
 
 For full documentation on the API and API request parameters see: https://snapsearch.io/docs
 
-```php
-$request_parameters = array(
-	//add your API request parameters if you have any...
-);
+**Basic Usage**
 
-$client = new \SnapSearchClientPHP\Client('email', 'key', $request_parameters);
+```php
+$client = new \SnapSearchClientPHP\Client('email', 'key');
 $detector = new \SnapSearchClientPHP\Detector;
 $interceptor = new \SnapSearchClientPHP\Interceptor($client, $detector);
 
@@ -97,7 +95,69 @@ $response = [
 ]
 ```
 
-SnapSearchClientPHP can of course be used in other areas such as js enhanced scraping, so it doesn't force you to put it at the entry point if you're using it for other purposes. In that case just use the `SnapSearchPHP\Client` to send requests to the SnapSearch API.
+**Advanced Usage**
+
+```php
+$request_parameters = array(
+	//add your API request parameters if you have any...
+);
+
+$blacklisted_routes = array(
+	//add your black listed routes if you have any...
+);
+
+$whitelisted_routes = array(
+	//add your white listed routes if you have any...
+);
+
+$symfony_http_request_object = //get the Symfony\Component\HttpFoundation\Request
+
+$robot_json_path = //if you have a custom Robots.json you can choose to use that instead, use the absolute path
+
+$check_static_files = //if you wish for SnapSearchClient to check if the URL leads to a static file, switch this on to a boolean true, however this is expensive and time consuming, so it's better to use black listed or white listed routes
+
+$client = new \SnapSearchClientPHP\Client('email', 'key', $request_parameters);
+
+$detector = new \SnapSearchClientPHP\Detector(
+	$blacklisted_routes, 
+	$whitelisted_routes, 
+	$symfony_http_request_object,
+	$robot_json_path,
+	$check_static_files
+);
+
+$interceptor = new \SnapSearchClientPHP\Interceptor($client, $detector);
+
+//exceptions should be ignored in production, but during development you can check it for validation errors
+try{
+
+	$response = $this->interceptor->intercept();
+
+}catch(SnapSearchClientPHP\SnapSearchException $e){}
+
+if($response){
+
+	//this request is from a robot
+
+	//status code
+	header(' ', true, $response['status']); //as of PHP 5.4, you can use http_response_code($response['status']);
+	
+	//content
+	echo $response['html'];
+
+	//$response['headers'] is not returned to the search engine due to potential content or transfer encoding issuesm however you it is up to you if you want to test it out!
+
+}else{
+
+	//this request is not from a robot
+	//continue with normal operations...
+
+}
+```
+
+There's a number of extra features inside `SnapSearchClientPHP\Detector`. Check the source code, all the functions are commented.
+
+SnapSearchClientPHP can of course be used in other areas such as javascript enhanced scraping, so it doesn't force you to put it at the entry point if you're using it for other purposes. In that case just use the `SnapSearchPHP\Client` to send requests to the SnapSearch API.
 
 Tests
 ----
