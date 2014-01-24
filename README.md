@@ -40,6 +40,8 @@ Usage
 
 SnapSearchClientPHP should be best started at the entry point your application. This could be inside a front controller, bootstrapping process, IOC container, or middleware. For a single page application, your entry point would be the code that first presents the initial HTML page.
 
+For full documentation on the API and API request parameters see: https://snapsearch.io/docs
+
 ```php
 $request_parameters = array(
 	//add your API request parameters if you have any...
