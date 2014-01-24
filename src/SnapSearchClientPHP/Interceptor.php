@@ -2,8 +2,8 @@
 
 namespace SnapSearchClientPHP;
 
-use SnapSearchClientPHP\Detector;
 use SnapSearchClientPHP\Client;
+use SnapSearchClientPHP\Detector;
 
 /**
  * Interceptor intercepts the request and checks with the Detector if the request is valid for interception and then calls the Client for scraping and finally returns the content of the snapshot.
