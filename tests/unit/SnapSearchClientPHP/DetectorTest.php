@@ -146,7 +146,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->normal_browser['_SERVER']
 		);
 
-		$detector = new Detector($request);
+		$detector = new Detector(null, null, $request);
 
 		$this->assertFalse($detector->detect());
 
@@ -163,7 +163,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->search_engine['_SERVER']
 		);
 
-		$detector = new Detector($request);
+		$detector = new Detector(null, null, $request);
 
 		$this->assertTrue($detector->detect());
 
@@ -180,7 +180,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->snapsearch_robot['_SERVER']
 		);
 
-		$detector = new Detector($request);
+		$detector = new Detector(null, null, $request);
 
 		$this->assertFalse($detector->detect());
 
@@ -197,7 +197,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->non_get_route['_SERVER']
 		);
 
-		$detector = new Detector($request);
+		$detector = new Detector(null, null, $request);
 
 		$this->assertFalse($detector->detect());
 
@@ -214,7 +214,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->ignored_route['_SERVER']
 		);
 
-		$detector = new Detector($request, array('^\/ignored'));
+		$detector = new Detector(array('^\/ignored'), null, $request);
 
 		$this->assertFalse($detector->detect());
 
@@ -231,7 +231,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->matched_route['_SERVER']
 		);
 
-		$detector = new Detector($request, null, array('^\/non_matched_route'));
+		$detector = new Detector(null, array('^\/non_matched_route'), $request);
 
 		$this->assertFalse($detector->detect());
 
@@ -248,7 +248,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->matched_route['_SERVER']
 		);
 
-		$detector = new Detector($request, null, array('^\/matched'));
+		$detector = new Detector(null, array('^\/matched'), $request);
 
 		$this->assertTrue($detector->detect());
 
@@ -265,7 +265,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->escaped_fragment_route['_SERVER']
 		);
 
-		$detector = new Detector($request);
+		$detector = new Detector(null, null, $request);
 
 		$this->assertTrue($detector->detect());
 
@@ -282,7 +282,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			$this->escaped_fragment_route['_SERVER']
 		);
 
-		$detector = new Detector($request);
+		$detector = new Detector(null, null, $request);
 
 		$this->assertEquals($detector->get_encoded_url(), 'http://localhost/snapsearch/?blah=yay#!key1=lol');
 
