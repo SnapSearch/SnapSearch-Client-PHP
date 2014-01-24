@@ -23,9 +23,11 @@ class Bootstrap{
 	 */
 	public static function autoload($class){
 
-		//path to src folder
-		$src_path = dirname(__DIR__);
- 
+		//path to src folder, this only works with PSR-0
+		$src_path = dirname(__DIR__) . DIRECTORY_SEPARATOR;
+
+		//remove the first ns (\) since src_path already has it
+ 		$class = ltrim($class, '\\');
 		$file  = '';
 		$namespace = '';
  
@@ -40,7 +42,7 @@ class Bootstrap{
 		
 		//replace all class names with (_) with DIRECTORY_SEPARATOR
 		$file .= strtr($class, '_', DIRECTORY_SEPARATOR);
- 
+		 
 		if(file_exists($src_path . $file . '.php')){
 		
 			require_once($src_path . $file . '.php');
