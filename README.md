@@ -63,9 +63,6 @@ if($response){
 	//status code
 	header(' ', true, $response['status']); //as of PHP 5.4, you can use http_response_code($response['status']);
 	
-	//content
-	echo $response['html'];
-
 	//the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
 	if(!empty($response['headers'])){
 		foreach($response['headers'] as $header){
@@ -74,6 +71,9 @@ if($response){
 			}
 		}
 	}
+
+	//content
+	echo $response['html'];
 
 }else{
 
@@ -149,9 +149,6 @@ if($response){
 	//status code
 	header(' ', true, $response['status']); //as of PHP 5.4, you can use http_response_code($response['status']);
 	
-	//content
-	echo $response['html'];
-
 	//the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
 	if(!empty($response['headers'])){
 		foreach($response['headers'] as $header){
@@ -160,6 +157,9 @@ if($response){
 			}
 		}
 	}
+	
+	//content
+	echo $response['html'];
 
 }else{
 
