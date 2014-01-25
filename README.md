@@ -28,7 +28,7 @@ Just extract `src/SnapSearchClientPHP/` folder into your library location. Then 
 
 You can also use the supplied autoloader. First clone this project to your desired location, then write:
 
-```
+```php
 require_once('SnapSearch-Client-PHP/src/SnapSearchClientPHP/Bootstrap.php');
 \SnapSearchClientPHP\Bootstrap::register();
 ```
