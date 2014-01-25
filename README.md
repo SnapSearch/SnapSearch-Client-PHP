@@ -66,7 +66,14 @@ if($response){
 	//content
 	echo $response['html'];
 
-	//$response['headers'] is not returned to the search engine due to potential content or transfer encoding issuesm however you it is up to you if you want to test it out!
+	//the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
+	if(!empty($response['headers'])){
+		foreach($response['headers'] as $header){
+			if($header['name'] == 'Location'){
+				header($header['name'] . ': ' . $header['value']);
+			}
+		}
+	}
 
 }else{
 
@@ -145,7 +152,14 @@ if($response){
 	//content
 	echo $response['html'];
 
-	//$response['headers'] is not returned to the search engine due to potential content or transfer encoding issuesm however you it is up to you if you want to test it out!
+	//the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
+	if(!empty($response['headers'])){
+		foreach($response['headers'] as $header){
+			if($header['name'] == 'Location'){
+				header($header['name'] . ': ' . $header['value']);
+			}
+		}
+	}
 
 }else{
 
