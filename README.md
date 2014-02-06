@@ -169,6 +169,8 @@ if($response){
 }
 ```
 
+The `$check_static_files` boolean is available for the use of runtimes that act as both the HTTP and Application server. Most applications will have a HTTP server placed in front of it, such as NGINX or Apache. This means the HTTP server figures whether the client request goes to a static file such as `styles.css` or `uploaded.txt` or to the application server such as `mod_php` or `php-fpm`. In this case, using `$check_static_files` is unnecessary. However some runtimes runs as the HTTP server as well as the Application server. One example would be Node.js or running PHP as a web server. This means that your runtime can potentially serve static files as well. The `$check_static_files` if true will ignore all requests that goes to a static file that has a extension that is not equal to `.php`. However this is an expensive operation, so it's far better if you blacklist those routes or whitelist the non-static files routes. Furthermore this `$check_static_files` will not protect against routes that responds with binary content such as download controllers or video streaming controllers, so make sure to blacklist those routes.
+
 There's a number of extra features inside `SnapSearchClientPHP\Detector`. Check the source code, all the functions are commented.
 
 SnapSearchClientPHP can of course be used in other areas such as javascript enhanced scraping, so it doesn't force you to put it at the entry point if you're using it for other purposes. In that case just use the `SnapSearchPHP\Client` to send requests to the SnapSearch API.
