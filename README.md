@@ -1,11 +1,11 @@
 Snapsearch Client PHP Generic
 =============================
 
-[![Build Status](https://travis-ci.org/Polycademy/SnapSearch-Client-PHP.png?branch=master)](https://travis-ci.org/Polycademy/SnapSearch-Client-PHP)
+[![Build Status](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP.png?branch=master)](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP)
 
 Snapsearch Client PHP Generic is PHP based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/).
 
-SnapSearch provides similar libraries in other languages: https://github.com/Polycademy/Snapsearch-Clients
+SnapSearch provides similar libraries in other languages: https://github.com/SnapSearch/Snapsearch-Clients
 
 Installation
 ------------
@@ -17,7 +17,7 @@ Requires 5.3.3 or above and Curl extension.
 Add this to your `composer.json`
 
 ```
-"polycademy/snapsearch-client-php": "~1.0.0"
+"snapsearch/snapsearch-client-php": "~1.0.0"
 ```
 
 Then run `composer install` or `composer update`.
