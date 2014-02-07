@@ -2,7 +2,7 @@
 	"name": "snapsearch/snapsearch-client-php",
 	"description": "PHP HTTP Client Middleware Libraries for SnapSearch. Search engine optimisation for single page applications.",
 	"keywords": ["seo", "search engine optimisation", "javascript", "ajax", "angular", "ember", "knockout", "backbone", "extjs", "dojo"],
-	"homepage": "https://github.com/Polycademy/snapsearch_clients",
+	"homepage": "https://github.com/SnapSearch/SnapSearch-Clients",
 	"license": "MIT",
 	"authors": [{
 		"name": "Roger Qiu",
