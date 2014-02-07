@@ -35,6 +35,8 @@ require_once('SnapSearch-Client-PHP/src/SnapSearchClientPHP/Bootstrap.php');
 
 If you don't want to use an autoloader, just require all the classes inside `src/SnapSearchClientPHP/` except `Bootstrap.php`.
 
+Note you will have to install the dependencies and autoload them manually as well. Look into `composer.json` file and find the dependencies in the `"require"` section.
+
 Usage
 -----
 
