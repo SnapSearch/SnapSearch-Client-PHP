@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Detector detects if the current request is from a search engine robot using the Robots.json file
+ * Make sure to understand the difference between encoding and decoding via http://stackoverflow.com/a/21628649/582917
  */
 class Detector{
 
@@ -208,6 +209,8 @@ class Detector{
 
 			$qs_and_hash = $this->get_real_qs_and_hash_fragment(true);
 
+			//the query string must be ahead of the hash, because anything after hash is never passed to the server
+			//and the server may require the query strings
 			$url = 
 				$this->request->getSchemeAndHttpHost() 
 				. $this->request->getBaseUrl() 
@@ -219,6 +222,7 @@ class Detector{
 
 		}else{
 
+			//gets the rawurlencoded complete uri
 			return $this->request->getUri();
 
 		}
@@ -247,6 +251,8 @@ class Detector{
 
 		}else{
 
+			//getRequestUri() gets the not urldecode() request path (not the full uri) and then runs rawurldecode to retrieve the literal form of the uri, so it can be used against the whitelist and blacklist regex
+			//the regex is likely to contain literal forms of the urls, not encoded forms
 			return rawurldecode($this->request->getRequestUri());
 
 		}
@@ -284,9 +290,11 @@ class Detector{
 			$query_string = '?' . implode('&', $query_parameters);
 		}
 
+		//all get parameters are automatically filtered via urldecode()
 		$hash = $this->request->query->get('_escaped_fragment_');
 		$hash_string = '';
 		if(!empty($hash)){
+			//the hash fragment can be anything, and the URL standard allows any characters after the hash, so no encoding required
 			$hash_string = '#!' . $hash;
 		}
 
