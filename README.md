@@ -1,9 +1,9 @@
-Snapsearch Client PHP Generic
-=============================
+Snapsearch Client PHP
+=====================
 
 [![Build Status](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP.png?branch=master)](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP)
 
-Snapsearch Client PHP Generic is PHP based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/).
+Snapsearch Client PHP is PHP based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/).
 
 SnapSearch provides similar libraries in other languages: https://github.com/SnapSearch/Snapsearch-Clients
 
