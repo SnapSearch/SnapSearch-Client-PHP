@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
  
 class DetectorTest extends \Codeception\TestCase\Test{
 
-	public $normal_browser = array ( 
+	public $normal_browser = array( 
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -24,7 +24,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $search_engine = array ( 
+	public $search_engine = array( 
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -42,7 +42,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $snapsearch_robot = array ( 
+	public $snapsearch_robot = array( 
 		'_GET'	=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -96,7 +96,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $matched_route = array ( 
+	public $matched_route = array( 
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -114,10 +114,10 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $escaped_fragment_route = array ( 
+	public $escaped_fragment_route = array(
 		'_GET'		=> array(
-			'blah' => 'yay', 
-			'_escaped_fragment_' => 'key1=lol'
+			'key1' => 'value1', 
+			'_escaped_fragment_' => '/path2?key2=value2'
 		),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -130,8 +130,8 @@ class DetectorTest extends \Codeception\TestCase\Test{
 			'GATEWAY_INTERFACE' => 'CGI/1.1', 
 			'SERVER_PROTOCOL' => 'HTTP/1.1', 
 			'REQUEST_METHOD' => 'GET', 
-			'QUERY_STRING' => 'blah=yay&_escaped_fragment_=key1%3Dlol',
-			'REQUEST_URI' => '/snapsearch/?blah=yay&_escaped_fragment_=key1%3Dlol',
+			'QUERY_STRING' => 'key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2',
+			'REQUEST_URI' => '/snapsearch/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2',
 		),
 	);
 
@@ -284,7 +284,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 
 		$detector = new Detector(null, null, $request);
 
-		$this->assertEquals($detector->get_encoded_url(), 'http://localhost/snapsearch/?blah=yay#!key1=lol');
+		$this->assertEquals($detector->get_encoded_url(), 'http://localhost/snapsearch/path1?key1=value1#!/path2?key2=value2');
 
 	}
 
