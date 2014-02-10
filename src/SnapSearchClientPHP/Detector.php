@@ -260,12 +260,18 @@ class Detector{
 	}
 
 	/**
-	 * Gets the real query string and hash fragment by reversing the Google's _escaped_fragment_ protocol to the hash bang mode.
-	 * Google will convert the original url from:
-	 * http://example.com/path#!key=value to http://example.com/path?_escaped_fragment_=key%26value
-	 * Therefore we have to reverse this process to the original url which will be used for snapshotting purposes.
-	 * https://developers.google.com/webmasters/ajax-crawling/docs/specification
-	 * This is used for both getting the encoded url for scraping and the decoded path for detection.
+	 * Gets the real query string and hash fragment by reversing the Google's _escaped_fragment_ protocol to the hash bang mode. This is used for both getting the encoded url for scraping and the decoded path for detection.
+	 * Google will convert convert URLs like so:
+	 * Original URL: http://example.com/path1?key1=value1#!/path2?key2=value2
+	 * Original Structure: DOMAIN - PATH - QS - HASH BANG - HASH PATH - HASH QS
+	 * Search Engine URL: http://example.com/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2
+	 * Search Engine Structure: DOMAIN - PATH - QS - ESCAPED FRAGMENT
+	 * Everything after the hash bang will be stored as the _escaped_fragment_, even if they are query strings.
+	 * Therefore we have to reverse this process to get the original url which will be used for snapshotting purposes.
+	 * This means the original URL can have 2 query strings components.
+	 * The QS before the HASH BANG will be received by both the server and the client. However not all client side frameworks will process this QS.
+	 * The HASH QS will only be received by the client as anything after hash does not get sent to the server. Most client side frameworks will process this HASH QS.
+	 * See this for more information: https://developers.google.com/webmasters/ajax-crawling/docs/specification
 	 * 
 	 * @param  boolean $encode Whether to rawurlencode the query string or not
 	 * 
