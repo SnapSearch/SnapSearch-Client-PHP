@@ -114,6 +114,26 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
+	public $basic_escaped_fragment_route = array(
+		'_GET'		=> array(
+			'_escaped_fragment_' => ''
+		),
+		'_SERVER'	=> array(
+			'HTTP_HOST' => 'localhost', 
+			'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0', 
+			'SERVER_NAME' => 'localhost', 
+			'SERVER_PORT' => '80', 
+			'REMOTE_ADDR' => '::1', 
+			'DOCUMENT_ROOT' => 'C:/www', 
+			'REQUEST_SCHEME' => 'http', 
+			'GATEWAY_INTERFACE' => 'CGI/1.1', 
+			'SERVER_PROTOCOL' => 'HTTP/1.1', 
+			'REQUEST_METHOD' => 'GET', 
+			'QUERY_STRING' => '_escaped_fragment_',
+			'REQUEST_URI' => '/snapsearch?_escaped_fragment_',
+		),
+	);
+
 	public $escaped_fragment_route = array(
 		'_GET'		=> array(
 			'key1' => 'value1', 
@@ -257,12 +277,12 @@ class DetectorTest extends \Codeception\TestCase\Test{
 	public function testEscapedFragmentRouteShouldBeIntercepted(){
 
 		$request = new Request(
-			$this->escaped_fragment_route['_GET'], 
+			$this->basic_escaped_fragment_route['_GET'], 
 			$_POST, 
 			array(), 
 			$_COOKIE, 
 			$_FILES, 
-			$this->escaped_fragment_route['_SERVER']
+			$this->basic_escaped_fragment_route['_SERVER']
 		);
 
 		$detector = new Detector(null, null, $request);
