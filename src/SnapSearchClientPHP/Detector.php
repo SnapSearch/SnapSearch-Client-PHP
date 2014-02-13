@@ -149,7 +149,7 @@ class Detector{
 				[^/?#]+        # {file} - has one or more of any character except forward slash, question mark or hash
 				\.             # Literal dot
 				([^/?#]+)      # {extension} - Subgroup has one or more of any character except forward slash, question mark or hash
-			~iux';
+			~ux';
 
 			//extension regex will be tested against the decoded path, not the full url to avoid domain extensions
 			foreach($valid_extensions as $extension){
