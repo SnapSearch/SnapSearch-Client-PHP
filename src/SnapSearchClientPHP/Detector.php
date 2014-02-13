@@ -3,6 +3,7 @@
 namespace SnapSearchClientPHP;
 
 use Symfony\Component\HttpFoundation\Request;
+use SnapSearchClientPHP\SnapSearchException;
 
 /**
  * Detector detects if the current request is from a search engine robot using the Robots.json file
@@ -13,32 +14,37 @@ class Detector{
 	protected $ignored_routes;
 	protected $matched_routes;
 	protected $request;
-	protected $check_static_files;
+	protected $check_file_extensions;
 	protected $robots;
+	protected $extensions;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param array   $ignored_routes     Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
-	 * @param array   $matched_routes     Array of whitelisted route regexes, any route not matching will be ignored during detection
-	 * @param Request $request            Symfony Request Object
-	 * @param boolean $robots_json        Absolute path to a the Robots.json file
-	 * @param boolean $check_static_files Switch to check if the path leads to a static file that is not a PHP script. This is prevent SnapSearch from attempting to scrape files that are not HTML. This is by default left off because it is an expensive check, and should be done only if you're hosting a lot of static files.
+	 * @param array   $ignored_routes        Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
+	 * @param array   $matched_routes        Array of whitelisted route regexes, any route not matching will be ignored during detection
+	 * @param boolean $check_file_extensions Boolean to check if the url is going to a static file resource that should not be intercepted. This is prevent SnapSearch from attempting to scrape files which are not HTML. This is false by default as it depends on your routing structure.
+	 * @param Request $request               Symfony Request Object
+	 * @param string  $robots_json           Absolute path to a Robots.json file
+	 * @param string  $extensions_json       Absolute path to a Extensions.json file
 	 */
 	public function __construct(
 		array $ignored_routes = null,
 		array $matched_routes = null,
+		$check_file_extensions = false,
 		Request $request = null,
 		$robots_json = false,
-		$check_static_files = false
+		$extensions_json = false
 	){
 
 		$this->ignored_routes = ($ignored_routes) ? $ignored_routes : array();
 		$this->matched_routes = ($matched_routes) ? $matched_routes : array();
+		$this->check_file_extensions = (boolean) $check_file_extensions;
 		$this->request = ($request) ? $request : Request::createFromGlobals();
 		$robots_json = ($robots_json) ? $robots_json : dirname(__FILE__) . '/Robots.json';
-		$this->robots = $this->parse_robots_json($robots_json);
-		$this->check_static_files = (boolean) $check_static_files;
+		$this->robots = $this->parse_json($robots_json);
+		$extensions_json = ($extensions_json) ? $extensions_json : dirname(__FILE__) . '/Extensions.json';
+		$this->extensions = $this->parse_json($extensions_json);
 
 	}
 
@@ -60,7 +66,6 @@ class Detector{
 		//the user agent may not exist, so we want to make sure to gets typecast to a string
 		$user_agent = (string) $this->request->headers->get('user-agent');
 		$real_path = $this->get_decoded_path();
-		$document_root = $this->request->server->get('DOCUMENT_ROOT');
 
 		//only intercept on get requests, SnapSearch robot cannot submit a POST, PUT or DELETE request
 		if($this->request->getMethod() != 'GET'){
@@ -76,7 +81,7 @@ class Detector{
 		foreach($this->robots['ignore'] as $key => $ignored_robot){
 			$this->robots['ignore'][$key] = preg_quote($ignored_robot);
 		}
-		$ignore_regex = '/' . implode('|', $this->robots['ignore']) . '/i';
+		$ignore_regex = '/' . implode('|', $this->robots['ignore']) . '/iu';
 		if(preg_match($ignore_regex, $user_agent) === 1){
 			return false;
 		}
@@ -86,7 +91,7 @@ class Detector{
 		if(!empty($this->matched_routes)){
 			$matched_whitelist = false;
 			foreach($this->matched_routes as $matched_route){
-				$matched_route = '/' . $matched_route . '/i';
+				$matched_route = '/' . $matched_route . '/iu';
 				if(preg_match($matched_route, $real_path) === 1){
 					$matched_whitelist = true;
 					break;
@@ -97,30 +102,64 @@ class Detector{
 
 		//detect ignored routes
 		foreach($this->ignored_routes as $ignored_route){
-			$ignored_route = '/' . $ignored_route . '/i';
+			$ignored_route = '/' . $ignored_route . '/iu';
 			if(preg_match($ignored_route, $real_path) === 1){
 				return false;
 			}
 		}
 
-		//ignore direct requests to files unless it's a php file
-		if($this->check_static_files AND !empty($document_root) AND !empty($real_path)){
+		//detect extensions in order to prevent direct requests to static files
+		if($this->check_file_extensions){
 
-			//convert slashes to OS specific slashes
-			//remove the trailing / or \ from the document root if it exists
-			$document_root = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $document_root);
-			$document_root = rtrim($document_root, DIRECTORY_SEPARATOR);
+			//create an array of extensions that are common for HTML resources
+			$generic_extensions = (
+				!empty($this->extensions['generic']) 
+				AND 
+				is_array($this->extensions['generic'])
+			) ? $this->extensions['generic'] : array();
 
-			//remove the leading / or \ from the path if it exists
-			$real_path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $real_path);
-			$real_path = ltrim($real_path, DIRECTORY_SEPARATOR);
+			$php_extensions = (
+				!empty($this->extensions['php']) 
+				AND 
+				is_array($this->extensions['generic'])
+			) ? $this->extensions['php'] : array();
 
-			$absolute_path = $document_root . DIRECTORY_SEPARATOR . $real_path;
-			$path_info = pathinfo($absolute_path);
-			$path_info['extension'] = (!empty($path_info['extension'])) ? $path_info['extension'] : '';
+			$valid_extensions = array_unique(
+				array_merge(
+					$generic_extensions, 
+					$php_extensions
+				)
+			);
 
-			if(is_file($absolute_path) AND $path_info['extension'] != 'php'){
-				return false;
+			//regex for url file extensions, it looks for "/{file}.{extension}" in an url that is not preceded by ? (query parameters) or # (hash fragment)
+			$extension_regex = '~
+				^              # Regex begins at the beginning of the string
+				(?:            # Begin non-capturing group
+					(?!        # Negative lookahead, this presence of such a sequence will fail the regex
+					   [?#]    # Question mark or hash character
+					   .*      # Any or more wildcard characters
+					   /       # Literal slash
+					   [^/?#]+ # {file} - has one or more of any character except forward slash, question mark or hash
+					   \.      # Literal dot
+					   [^/?#]+ # {extension} - has one or more of any character except forward slash, question mark or hash
+					)          # This negative lookahead prevents any ? or # that precedes the {file}.{extension} by any characters
+					.          # Wildcard
+				)*             # Non-capturing group that will capture any number of wildcard that passes the negative lookahead
+				/              # Literal slash
+				[^/?#]+        # {file} - has one or more of any character except forward slash, question mark or hash
+				\.             # Literal dot
+				([^/?#]+)      # {extension} - Subgroup has one or more of any character except forward slash, question mark or hash
+			~iux';
+
+			//extension regex will be tested against the decoded path, not the full url to avoid domain extensions
+			foreach($valid_extensions as $extension){
+				//if there were no extensions found, then it's a pass
+				if(preg_match($extension_regex, $real_path, $matches) === 1){
+					//found an extension, check if it equals one of the valid HTML resource extensions
+					if($extension != $matches[1]){
+						return false;
+					}
+				}
 			}
 
 		}
@@ -134,7 +173,7 @@ class Detector{
 		foreach($this->robots['match'] as $key => $matched_robot){
 			$this->robots['match'][$key] = preg_quote($matched_robot);
 		}
-		$match_regex = '/' . implode('|', $this->robots['match']) . '/i';
+		$match_regex = '/' . implode('|', $this->robots['match']) . '/iu';
 		if(preg_match($match_regex, $user_agent) === 1){
 			return true;
 		}
@@ -149,21 +188,33 @@ class Detector{
 	 * 
 	 * @param  array   $robots Array of robots user agents
 	 * @param  boolean $type   Type can be 'ignore' or 'match'
-	 *
-	 * @return boolean
 	 */
 	public function set_robots(array $robots, $type = false){
 
 		if($type){
 			if($type != 'ignore' OR $type != 'match'){
-				return false;
+				throw new SnapSearchException('Robots array need to be set with a type equal to "ignore" or "match".');
 			}
 			$this->robots[$type] = $robots;
 		}else{
 			$this->robots = $robots;
 		}
 
-		return true;
+	}
+
+	/**
+	 * Sets valid URL file extensions. This can replace the extensions in Extensions.json or add/replace a certain type of extensions.
+	 * 
+	 * @param array   $extensions Array of extensions
+	 * @param boolean $type       Type can be any string such as "php" or "generic"
+	 */
+	public function set_extensions(array $extensions, $type = false){
+
+		if($type){
+			$this->extension[$type] = $extensions;
+		}else{
+			$this->extensions = $extensions;
+		}
 
 	}
 
@@ -193,6 +244,21 @@ class Detector{
 			$this->robots['ignore'] += $robots;
 		}else{
 			$this->robots['ignore'][] = $robots;
+		}
+
+	}
+
+	/**
+	 * Adds a single extension or an array of extensions to the PHP type in Extensions.json
+	 * 
+	 * @param string|array $extensions String or array of extensions
+	 */
+	public function add_extensions($extensions){
+
+		if(is_array($extensions)){
+			$this->extensions['php'] += $extensions;
+		}else{
+			$this->extensions['php'][] = $extensions;
 		}
 
 	}
@@ -231,7 +297,7 @@ class Detector{
 
 	/**
 	 * Gets the decoded URL path relevant for detecting matched or ignored routes during detection.
-	 * It is also used for static file detection. 
+	 * It is also used for static file detection.
 	 * 
 	 * @return string
 	 */
@@ -312,40 +378,39 @@ class Detector{
 	}
 
 	/**
-	 * Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
+	 * Parses json files by decoding the JSON and throwing an exception if the decoding went wrong.
 	 * 
-	 * @param  string $robots_json Absolute path to Robots.json
+	 * @param  string $json_file Absolute path to JSON file
 	 * 
 	 * @return array
 	 *
 	 * @throws Exception If json decoding didn't work
 	 */
-	protected function parse_robots_json($robots_json){
+	protected function parse_json($json_file){
 
-		if(is_file($robots_json) AND is_readable($robots_json)){
-			$robots = file_get_contents($robots_json);
+		if(is_file($json_file) AND is_readable($json_file)){
+			$data = file_get_contents($json_file);
 		}else{
-			throw new \Exception('The robots json file could not be found or could not be read.');
+			throw new \Exception("The $json_file file could not be found or could not be read.");
 		}
 
-		$robots = json_decode($robots, true);
+		$data = json_decode($data, true);
 
 		switch(json_last_error()){
 			case JSON_ERROR_DEPTH:
-				$error = 'The robots json file exceeded maximum stack depth.';
+				$error = "The $json_file file exceeded maximum stack depth.";
 			break;
 			case JSON_ERROR_STATE_MISMATCH:
-				$error = 'The robots json file hit an underflow or the mods mismatched.';
-				echo ' - Underflow or the modes mismatch';
+				$error = "The $json_file file hit an underflow or the mods mismatched.";
 			break;
 			case JSON_ERROR_CTRL_CHAR:
-				$error = 'The robots json file has an unexpected control character.';
+				$error = "The $json_file file has an unexpected control character.";
 			break;
 			case JSON_ERROR_SYNTAX:
-				$error = 'The robots json file has a syntax error, it\'s json is malformed.';
+				$error = "The $json_file file has a syntax error, it\'s JSON is malformed.";
 			break;
 			case JSON_ERROR_UTF8:
-				$error = 'The robots json file has malformed UTF-8 characters, possibly incorrectly encoded.';
+				$error = "The $json_file file has malformed UTF-8 characters, it could be incorrectly encoded.";
 			break;
 			case JSON_ERROR_NONE:
 			default:
@@ -356,7 +421,7 @@ class Detector{
 			throw new \Exception($error);
 		}
 
-		return $robots;
+		return $data;
 
 	}
 
