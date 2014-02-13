@@ -89,7 +89,7 @@ Here's an example `$response` variable (not all variables are available, you nee
 
 ```php
 $response = [
-	'cache' 	=> 'true/false'
+	'cache' 	=> true/false
 	'date'		=> 1390382314,
 	'headers'	=> [
 		[
@@ -176,6 +176,25 @@ The `$check_static_files` boolean is available for the use of runtimes that act 
 There's a number of extra features inside `SnapSearchClientPHP\Detector`. Check the source code, all the functions are commented.
 
 SnapSearchClientPHP can of course be used in other areas such as javascript enhanced scraping, so it doesn't force you to put it at the entry point if you're using it for other purposes. In that case just use the `SnapSearchPHP\Client` to send requests to the SnapSearch API.
+
+Development
+-----------
+
+Install/update dependencies with composer:
+
+```
+composer update
+```
+
+Make your changes, synchronise, then create a new tag:
+
+```
+git tag MAJOR.MINOR.PATCH
+git push
+git push --tags
+```
+
+Packagist is integrated in the Github Service Hooks, it will automatically release the new package.
 
 Tests
 ----
