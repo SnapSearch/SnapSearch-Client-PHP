@@ -41,9 +41,9 @@ class Detector{
 		$this->matched_routes = ($matched_routes) ? $matched_routes : array();
 		$this->check_file_extensions = (boolean) $check_file_extensions;
 		$this->request = ($request) ? $request : Request::createFromGlobals();
-		$robots_json = ($robots_json) ? $robots_json : dirname(__FILE__) . '/Robots.json';
+		$robots_json = ($robots_json) ? $robots_json : dirname(__FILE__) . '/Resources/Robots.json';
 		$this->robots = $this->parse_json($robots_json);
-		$extensions_json = ($extensions_json) ? $extensions_json : dirname(__FILE__) . '/Extensions.json';
+		$extensions_json = ($extensions_json) ? $extensions_json : dirname(__FILE__) . '/Resources/Extensions.json';
 		$this->extensions = $this->parse_json($extensions_json);
 
 	}
