@@ -223,13 +223,13 @@ Development
 
 Install/update dependencies with composer:
 
-```
+```sh
 composer update
 ```
 
 Make your changes, synchronise, then create a new tag:
 
-```
+```sh
 git tag MAJOR.MINOR.PATCH
 git push
 git push --tags
