@@ -12,6 +12,7 @@
 	}],
 	"require": {
 		"php": ">=5.3.3",
+		"ext-curl": "*",
 		"symfony/http-foundation": "~2.3"
 	},
 	"require-dev": {
