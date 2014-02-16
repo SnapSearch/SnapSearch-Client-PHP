@@ -89,18 +89,32 @@ Here's an example `$response` variable (not all variables are available, you nee
 
 ```php
 $response = [
-	'cache' 	=> true/false
-	'date'		=> 1390382314,
-	'headers'	=> [
+	'cache' 			=> true/false,
+	'callbackResult'	=> '',
+	'date'				=> 1390382314,
+	'headers'			=> [
 		[
 			'name'	=> 'Content-Type',
 			'value'	=> 'text/html'
 		]
 	],
-	'html'		=> '<html></html>',
-	'message'	=> 'Success/Failed/Validation Errors',
-	'screensot'	=> 'BASE64 ENCODED IMAGE CONTENT',
-	'status'	=> 200
+	'html'				=> '<html></html>',
+	'message'			=> 'Success/Failed/Validation Errors',
+	'pageErrors'		=> [
+		{
+			error: 'Error: document.querySelector(...) is null',
+			trace: [
+				{
+					'file': 'filename',
+					'function': 'anonymous',
+					'line': '41',
+					'sourceURL': 'urltofile'
+				}
+			]
+		}
+	],
+	'screensot'			=> 'BASE64 ENCODED IMAGE CONTENT',
+	'status'			=> 200
 ]
 ```
 
@@ -137,6 +151,30 @@ $detector = new \SnapSearchClientPHP\Detector(
 
 $interceptor = new \SnapSearchClientPHP\Interceptor($client, $detector);
 
+//your custom cache driver
+$cache = new YourCustomClientSideCacheDriver;
+
+//this callback is called after the Detector has detected a search engine robot
+//if this callback returns an array, the array will be used as the $response to $interceptor->intercept();
+//use it for client side caching in order to have millisecond responses to search engines
+$interceptor->before_intercept(function($url) use ($cache){
+
+	//get cache from redis/filesystem..etc
+	//returned value should array if successful or boolean false if cache did not exist
+	return $cache->get($url); 
+	
+});
+
+//this callback can be used to store the snapshot from SnapSearch as a client side cached resource
+//this is of course optional as SnapSearch caches your snapshot as well!
+$interceptor->after_intercept(function($url, $response) use ($cache){
+
+	//the cached time should be less then the cached time you passed to SnapSearch, we recommend half the SnapSearch cachetime
+	$time = '12hrs';
+	$cache->store($url, $response, $time);
+	
+});
+
 //exceptions should be ignored in production, but during development you can check it for validation errors
 try{
 
@@ -171,7 +209,10 @@ if($response){
 }
 ```
 
-The `$check_static_files` boolean is available for the use of runtimes that act as both the HTTP and Application server. Most applications will have a HTTP server placed in front of it, such as NGINX or Apache. This means the HTTP server figures out whether the client request goes to a static file such as `styles.css` or `uploaded.txt`, or to the application server such as `mod_php` or `php-fpm`. In this case, using `$check_static_files` is unnecessary. However some runtimes runs as the HTTP server as well as the Application server. Such as using Node.js or running PHP as a web server. This means that your runtime can potentially serve static files as well. If the `$check_static_files` is `true`, the middleware will ignore all requests that goes to a static file that has an extension that is not equal to `.php`. However this is an expensive operation, so it's `false` by default and it's far better if you blacklist those routes or whitelist the non-static file routes. Furthermore this `$check_static_files` will not protect against routes that responds with binary content such as download controllers, or video/audio streaming controllers. These resources are not static files but they are not HTML either, so make sure to blacklist those routes.
+
+The `$check_file_extensions` boolean is available for applications that might serve static files. Usually the HTTP server serves up static files and these requests never get proxied to the application, this is why by default this boolean is false. However in cases where it does serve up static files, you can switch this to true to prevent static files routes from being intercepted. 
+
+It can be more efficient or easier to blacklist routes which lead to static files instead. This has the advantage of allowing you to prevent routes that go to binary resources which may not end in specific file extensions. Such as streaming audio/video.
 
 There's a number of extra features inside `SnapSearchClientPHP\Detector`. Check the source code, all the functions are commented.
 
