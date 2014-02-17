@@ -10,9 +10,32 @@ use SnapSearchClientPHP\Detector;
  */
 class Interceptor{
 
+	/**
+	 * Detector
+	 * 
+	 * @var Detector
+	 */
 	protected $detector;
+
+	/**
+	 * Client
+	 * 
+	 * @var Client
+	 */
 	protected $client;
+
+	/**
+	 * Before interception callback
+	 * 
+	 * @var callable
+	 */
 	protected $before;
+
+	/**
+	 * After interception callback
+	 * 
+	 * @var callable
+	 */
 	protected $after;
 
 	/**

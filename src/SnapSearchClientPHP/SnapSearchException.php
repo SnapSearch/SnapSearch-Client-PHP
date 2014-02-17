@@ -7,6 +7,11 @@ namespace SnapSearchClientPHP;
  */
 class SnapSearchException extends \Exception{
 
+	/**
+	 * Array of errors
+	 * 
+	 * @var array
+	 */
 	protected $errors_array = array();
 
 	/**

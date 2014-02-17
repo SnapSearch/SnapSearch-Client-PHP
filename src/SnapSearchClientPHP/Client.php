@@ -9,10 +9,39 @@ use SnapSearchClientPHP\SnapSearchException;
  */
 class Client{
 
+	/**
+	 * Email to be used as the username for HTTP basic auth
+	 * 
+	 * @var string
+	 */
 	protected $api_email;
+
+	/**
+	 * Key to be used as the password for HTTP basic auth
+	 * 
+	 * @var string
+	 */
 	protected $api_key;
+
+	/**
+	 * Request parameters as an array to be json encoded and sent to the SnapSearch service
+	 * 
+	 * @var array
+	 */
 	protected $request_parameters;
+
+	/**
+	 * SnapSearch API url
+	 * 
+	 * @var string
+	 */
 	protected $api_url;
+
+	/**
+	 * Absolute path to CA certificate
+	 * 
+	 * @var string
+	 */
 	protected $ca_path;
 
 	/**
