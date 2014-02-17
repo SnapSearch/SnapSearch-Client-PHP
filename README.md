@@ -209,7 +209,6 @@ if($response){
 }
 ```
 
-
 The `$check_file_extensions` boolean is available for applications that might serve static files. Usually the HTTP server serves up static files and these requests never get proxied to the application, this is why by default this boolean is false. However in cases where it does serve up static files, you can switch this to true to prevent static files routes from being intercepted. 
 
 It can be more efficient or easier to blacklist routes which lead to static files instead. This has the advantage of allowing you to prevent routes that go to binary resources which may not end in specific file extensions. Such as streaming audio/video.
@@ -217,6 +216,11 @@ It can be more efficient or easier to blacklist routes which lead to static file
 There's a number of extra features inside `SnapSearchClientPHP\Detector`. Check the source code, all the functions are commented.
 
 SnapSearchClientPHP can of course be used in other areas such as javascript enhanced scraping, so it doesn't force you to put it at the entry point if you're using it for other purposes. In that case just use the `SnapSearchPHP\Client` to send requests to the SnapSearch API.
+
+Proxies
+-------
+
+SnapSearch-Client-PHP uses the Symfony HTTP Foundation Request Object as an abstraction of the HTTP request. This allows you considerable flexibility and constructing the HTTP request especially when you're behind a reverse proxy such as a load balancer. If you are behind a reverse proxy, certain information such as the request protocol is not where it is normally. You can configure the Symfony HTTP Foundation Request Object to handle these edge cases, and simply pass your instance into the Detector. See this for more information: http://symfony.com/doc/current/components/http_foundation/trusting_proxies.html
 
 Development
 -----------
