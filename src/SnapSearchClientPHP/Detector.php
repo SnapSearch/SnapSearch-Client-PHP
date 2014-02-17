@@ -11,12 +11,66 @@ use SnapSearchClientPHP\SnapSearchException;
  */
 class Detector{
 
+	/**
+	 * Robots array containing user agents:
+	 * [
+	 *     "ignore": [
+	 *         //user agents to be ignored
+	 *     ]
+	 *     "match": [
+	 *         //user agents to be matched
+	 *     ]
+	 * ]
+	 * The ignore list takes precedence over the match list when running the detection algorithm.
+	 * You can change this array to customise your set of matched or ignored robots.
+	 * 
+	 * @var array
+	 */
+	public $robots;
+
+	/**
+	 * Extensions array containing a list of valid extensions:
+	 * [
+	 *     "generic": [
+	 *         //valid generic extensions
+	 *     ],
+	 *     "php": [
+	 *         //valid php extensions
+	 *     ]
+	 * ]
+	 * You can change this array to customise your set of valid file extensions.
+	 * 
+	 * @var array
+	 */
+	public $extensions;
+
+	/**
+	 * Ignored routes regex array
+	 * 
+	 * @var array
+	 */
 	protected $ignored_routes;
+
+	/**
+	 * Matched routes regex array
+	 * 
+	 * @var array
+	 */
 	protected $matched_routes;
+
+	/**
+	 * Symfony HTTP Foundation Request Object
+	 * 
+	 * @var Request
+	 */
 	protected $request;
+
+	/**
+	 * Boolean for whether to check for valid file extensions in the URL
+	 * 
+	 * @var boolean
+	 */
 	protected $check_file_extensions;
-	protected $robots;
-	protected $extensions;
 
 	/**
 	 * Constructor
@@ -52,7 +106,7 @@ class Detector{
 	 * Detects if the request came from a search engine robot. It will intercept in cascading order:
 	 * 1. on a GET request
 	 * 2. on an HTTP or HTTPS protocol
-	 * 3. not on any ignored robot user agents
+	 * 3. not on any ignored robot user agents (ignored robots take precedence over matched robots)
 	 * 4. not on any route not matching the whitelist
 	 * 5. not on any route matching the blacklist
 	 * 6. not on any invalid file extensions if there is a file extension
@@ -187,105 +241,6 @@ class Detector{
 
 		//if no match at all, return false
 		return false;
-
-	}
-
-	/**
-	 * Gets the robots array.
-	 * 
-	 * @return array
-	 */
-	public function get_robots(){
-
-		return $this->robots;
-
-	}
-
-	/**
-	 * Gets the extensions array.
-	 * 
-	 * @return array
-	 */
-	public function get_extensions(){
-
-		return $this->extensions;
-
-	}
-
-	/**
-	 * Sets a matched or ignored robots array. This replaces the matched or ignored arrays in Robots.json
-	 * 
-	 * @param  array   $robots Array of robots user agents
-	 * @param  boolean $type   Type can be 'ignore' or 'match'
-	 */
-	public function set_robots(array $robots, $type = false){
-
-		if($type){
-			$this->robots[$type] = $robots;
-		}else{
-			$this->robots = $robots;
-		}
-
-	}
-
-	/**
-	 * Sets valid URL file extensions. This can replace the extensions in Extensions.json or add/replace a certain type of extensions.
-	 * 
-	 * @param array   $extensions Array of extensions
-	 * @param boolean $type       Type can be any string such as "php" or "generic"
-	 */
-	public function set_extensions(array $extensions, $type = false){
-
-		if($type){
-			$this->extension[$type] = $extensions;
-		}else{
-			$this->extensions = $extensions;
-		}
-
-	}
-
-	/**
-	 * Adds a single robot or an array of robots to the matched robots in Robots.json
-	 * 
-	 * @param string|array $robots String or array of robot user agents
-	 */
-	public function add_match_robots($robots){
-
-		if(is_array($robots)){
-			$this->robots['match'] = array_merge($this->robots['match'], $robots);
-		}elseif(is_string($robots)){
-			$this->robots['match'][] = $robots;
-		}
-
-	}
-
-	/**
-	 * Adds a single robot or an array of robots to the ignored robots in Robots.json
-	 * 
-	 * @param string|array $robots String or array of robot user agents
-	 */
-	public function add_ignore_robots($robots){
-
-		if(is_array($robots)){
-			$this->robots['ignore'] = array_merge($this->robots['ignore'], $robots);
-		}elseif(is_string($robots)){
-			$this->robots['ignore'][] = $robots;
-		}
-
-	}
-
-	/**
-	 * Adds a single extension or an array of extensions to the PHP type in Extensions.json
-	 * 
-	 * @param string|array $extensions String or array of extensions
-	 */
-	public function add_extensions($extensions){
-
-		if(is_array($extensions)){
-			$this->extensions['php'] = array_merge($this->extensions['php'], $extensions);
-		}elseif(is_string($extensions)){
-			$this->extensions['php'][] = $extensions;
-		}
 
 	}
 

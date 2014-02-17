@@ -395,4 +395,68 @@ class DetectorTest extends \Codeception\TestCase\Test{
 
 	}
 
+	public function testSettingTheRobotsArray(){
+
+		$request = new Request(
+			$_GET, 
+			$_POST, 
+			array(), 
+			$_COOKIE, 
+			$_FILES, 
+			array(
+				'HTTP_HOST' => 'localhost', 
+				'HTTP_USER_AGENT' => 'AdsBot-Google ( http://www.google.com/adsbot.html)', 
+				'SERVER_NAME' => 'localhost', 
+				'SERVER_PORT' => '80', 
+				'REMOTE_ADDR' => '::1', 
+				'DOCUMENT_ROOT' => 'C:/www', 
+				'REQUEST_SCHEME' => 'http', 
+				'GATEWAY_INTERFACE' => 'CGI/1.1', 
+				'SERVER_PROTOCOL' => 'HTTP/1.1', 
+				'REQUEST_METHOD' => 'GET', 
+				'QUERY_STRING' => '', 
+				'REQUEST_URI' => '/snapsearch/', 
+			)
+		);
+
+		$detector = new Detector(null, null, false, $request);
+
+		$detector->robots['ignore'][] = 'Adsbot-Google';
+
+		$this->assertFalse($detector->detect());
+
+	}
+
+	public function testSettingTheExtensionsArray(){
+
+		$request = new Request(
+			$_GET, 
+			$_POST, 
+			array(), 
+			$_COOKIE, 
+			$_FILES, 
+			array(
+				'HTTP_HOST' => 'localhost', 
+				'HTTP_USER_AGENT' => 'AdsBot-Google ( http://www.google.com/adsbot.html)', 
+				'SERVER_NAME' => 'localhost', 
+				'SERVER_PORT' => '80', 
+				'REMOTE_ADDR' => '::1', 
+				'DOCUMENT_ROOT' => 'C:/www', 
+				'REQUEST_SCHEME' => 'http', 
+				'GATEWAY_INTERFACE' => 'CGI/1.1', 
+				'SERVER_PROTOCOL' => 'HTTP/1.1', 
+				'REQUEST_METHOD' => 'GET', 
+				'QUERY_STRING' => '', 
+				'REQUEST_URI' => '/snapsearch/song.html.mp3?key=value', 
+			)
+		);
+
+		$detector = new Detector(null, null, true, $request);
+
+		$detector->extensions['generic'][] = 'mp3';
+
+		$this->assertTrue($detector->detect());
+
+	}
+
 }
