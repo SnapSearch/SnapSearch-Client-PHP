@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "0d41f82a1f011823d1521606538cc67b",
+    "hash": "93663da15b0118a941bae911e5e29ab1",
     "packages": [
         {
             "name": "symfony/http-foundation",
@@ -280,23 +280,23 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "1.8.0.1",
+            "version": "1.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "5c019b18a9fecf617951ea618d5a6ec48d037adc"
+                "reference": "e6ced5134ab2487eda4355a71e6a453e95854bdd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/5c019b18a9fecf617951ea618d5a6ec48d037adc",
-                "reference": "5c019b18a9fecf617951ea618d5a6ec48d037adc",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/e6ced5134ab2487eda4355a71e6a453e95854bdd",
+                "reference": "e6ced5134ab2487eda4355a71e6a453e95854bdd",
                 "shasum": ""
             },
             "require": {
                 "behat/mink": "1.5.*",
                 "behat/mink-goutte-driver": "1.0.*",
                 "behat/mink-selenium2-driver": "1.1.*",
-                "facebook/webdriver": "< 0.3",
+                "facebook/webdriver": "~0.3",
                 "monolog/monolog": "*",
                 "php": ">=5.3.3",
                 "phpunit/phpunit": "3.7.*",
@@ -312,7 +312,7 @@
                 "videlalvaro/php-amqplib": "*"
             },
             "suggest": {
-                "codeception/phpbuiltinserver": "Extension to starts and stops PHP builtin web server for your tests"
+                "codeception/phpbuiltinserver": "Extension to start and stop PHP built-in web server for your tests"
             },
             "bin": [
                 "codecept"
@@ -343,7 +343,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2013-11-15 16:40:18"
+            "time": "2014-02-13 04:34:58"
         },
         {
             "name": "fabpot/goutte",
@@ -405,20 +405,21 @@
         },
         {
             "name": "facebook/webdriver",
-            "version": "v0.2",
+            "version": "v0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facebook/php-webdriver.git",
-                "reference": "b720b6aafb667a463c7e7cafcdebf3210ddc5ef7"
+                "reference": "1b0facc33133f0ff990df8cebe7f2e19b2603da3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/b720b6aafb667a463c7e7cafcdebf3210ddc5ef7",
-                "reference": "b720b6aafb667a463c7e7cafcdebf3210ddc5ef7",
+                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/1b0facc33133f0ff990df8cebe7f2e19b2603da3",
+                "reference": "1b0facc33133f0ff990df8cebe7f2e19b2603da3",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=5.3.19",
+                "phpunit/phpunit": "3.7.*"
             },
             "type": "library",
             "autoload": {
@@ -432,7 +433,13 @@
             ],
             "description": "A php client for WebDriver",
             "homepage": "https://github.com/facebook/php-webdriver",
-            "time": "2013-10-10 02:34:59"
+            "keywords": [
+                "facebook",
+                "php",
+                "selenium",
+                "webdriver"
+            ],
+            "time": "2013-11-26 23:16:02"
         },
         {
             "name": "guzzle/common",
