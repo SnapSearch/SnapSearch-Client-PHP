@@ -55,7 +55,7 @@ class Detector{
 	 * 3. not on any ignored robot user agents
 	 * 4. not on any route not matching the whitelist
 	 * 5. not on any route matching the blacklist
-	 * 6. not on any static files that is not a PHP file if it is detected
+	 * 6. not on any invalid file extensions if there is a file extension
 	 * 7. on requests with _escaped_fragment_ query parameter
 	 * 8. on any matched robot user agents
 	 * 
@@ -121,17 +121,25 @@ class Detector{
 			$php_extensions = (
 				!empty($this->extensions['php']) 
 				AND 
-				is_array($this->extensions['generic'])
+				is_array($this->extensions['php'])
 			) ? $this->extensions['php'] : array();
 
-			$valid_extensions = array_unique(
-				array_merge(
-					$generic_extensions, 
-					$php_extensions
+			$valid_extensions = array_map(
+				function($value){
+					return strtolower($value);
+				}, 
+				array_unique(
+					array_merge(
+						$generic_extensions, 
+						$php_extensions
+					)
 				)
 			);
 
 			//regex for url file extensions, it looks for "/{file}.{extension}" in an url that is not preceded by ? (query parameters) or # (hash fragment)
+			//it will acquire the last extension that is present in the URL
+			//so with "/{file1}.{extension1}/{file2}.{extension2}" the extension2 will be the extension that is matched 
+			//furthermore if a file has multiple extensions "/{file}.{extension1}.{extension2}", it will only match extension2 because unix systems don't consider extensions to be metadata, and windows only considers the last extension to be valid metadata. Basically the {file}.{extension1} could actually just be the filename
 			$extension_regex = '~
 				^              # Regex begins at the beginning of the string
 				(?:            # Begin non-capturing group
@@ -152,13 +160,12 @@ class Detector{
 			~ux';
 
 			//extension regex will be tested against the decoded path, not the full url to avoid domain extensions
-			foreach($valid_extensions as $extension){
-				//if there were no extensions found, then it's a pass
-				if(preg_match($extension_regex, $real_path, $matches) === 1){
-					//found an extension, check if it equals one of the valid HTML resource extensions
-					if($extension != $matches[1]){
-						return false;
-					}
+			//if no extensions were found, then it's a pass
+			if(preg_match($extension_regex, $real_path, $matches) === 1){
+				$url_extension = strtolower($matches[1]);
+				//found an extension, check if it is valid
+				if(!in_array($url_extension, $valid_extensions)){
+					return false;
 				}
 			}
 
@@ -184,6 +191,28 @@ class Detector{
 	}
 
 	/**
+	 * Gets the robots array.
+	 * 
+	 * @return array
+	 */
+	public function get_robots(){
+
+		return $this->robots;
+
+	}
+
+	/**
+	 * Gets the extensions array.
+	 * 
+	 * @return array
+	 */
+	public function get_extensions(){
+
+		return $this->extensions;
+
+	}
+
+	/**
 	 * Sets a matched or ignored robots array. This replaces the matched or ignored arrays in Robots.json
 	 * 
 	 * @param  array   $robots Array of robots user agents
@@ -192,9 +221,6 @@ class Detector{
 	public function set_robots(array $robots, $type = false){
 
 		if($type){
-			if($type != 'ignore' OR $type != 'match'){
-				throw new SnapSearchException('Robots array need to be set with a type equal to "ignore" or "match".');
-			}
 			$this->robots[$type] = $robots;
 		}else{
 			$this->robots = $robots;
@@ -226,8 +252,8 @@ class Detector{
 	public function add_match_robots($robots){
 
 		if(is_array($robots)){
-			$this->robots['match'] += $robots;
-		}else{
+			$this->robots['match'] = array_merge($this->robots['match'], $robots);
+		}elseif(is_string($robots)){
 			$this->robots['match'][] = $robots;
 		}
 
@@ -241,8 +267,8 @@ class Detector{
 	public function add_ignore_robots($robots){
 
 		if(is_array($robots)){
-			$this->robots['ignore'] += $robots;
-		}else{
+			$this->robots['ignore'] = array_merge($this->robots['ignore'], $robots);
+		}elseif(is_string($robots)){
 			$this->robots['ignore'][] = $robots;
 		}
 
@@ -256,8 +282,8 @@ class Detector{
 	public function add_extensions($extensions){
 
 		if(is_array($extensions)){
-			$this->extensions['php'] += $extensions;
-		}else{
+			$this->extensions['php'] = array_merge($this->extensions['php'], $extensions);
+		}elseif(is_string($extensions)){
 			$this->extensions['php'][] = $extensions;
 		}
 

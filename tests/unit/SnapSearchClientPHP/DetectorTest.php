@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
  
 class DetectorTest extends \Codeception\TestCase\Test{
 
-	public $normal_browser = array( 
+	protected $normal_browser = array( 
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -24,7 +24,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $search_engine = array( 
+	protected $search_engine = array( 
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -42,7 +42,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $snapsearch_robot = array( 
+	protected $snapsearch_robot = array( 
 		'_GET'	=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -60,7 +60,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $non_get_route = array(
+	protected $non_get_route = array(
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -78,7 +78,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $ignored_route = array ( 
+	protected $ignored_route = array ( 
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -96,7 +96,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $matched_route = array( 
+	protected $matched_route = array( 
 		'_GET'		=> array(),
 		'_SERVER'	=> array(
 			'HTTP_HOST' => 'localhost', 
@@ -114,7 +114,43 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		)
 	);
 
-	public $basic_escaped_fragment_route = array(
+	protected $invalid_file_extension = array(
+		'_GET'		=> array(),
+		'_SERVER'	=> array(
+			'HTTP_HOST' => 'localhost', 
+			'HTTP_USER_AGENT' => 'AdsBot-Google ( http://www.google.com/adsbot.html)', 
+			'SERVER_NAME' => 'localhost', 
+			'SERVER_PORT' => '80', 
+			'REMOTE_ADDR' => '::1', 
+			'DOCUMENT_ROOT' => 'C:/www', 
+			'REQUEST_SCHEME' => 'http', 
+			'GATEWAY_INTERFACE' => 'CGI/1.1', 
+			'SERVER_PROTOCOL' => 'HTTP/1.1', 
+			'REQUEST_METHOD' => 'GET', 
+			'QUERY_STRING' => '', 
+			'REQUEST_URI' => '/snapsearch/song.html.mp3?key=value', 
+		)
+	);
+
+	protected $valid_file_extension = array(
+		'_GET'		=> array(),
+		'_SERVER'	=> array(
+			'HTTP_HOST' => 'localhost', 
+			'HTTP_USER_AGENT' => 'AdsBot-Google ( http://www.google.com/adsbot.html)', 
+			'SERVER_NAME' => 'localhost', 
+			'SERVER_PORT' => '80', 
+			'REMOTE_ADDR' => '::1', 
+			'DOCUMENT_ROOT' => 'C:/www', 
+			'REQUEST_SCHEME' => 'http', 
+			'GATEWAY_INTERFACE' => 'CGI/1.1', 
+			'SERVER_PROTOCOL' => 'HTTP/1.1', 
+			'REQUEST_METHOD' => 'GET', 
+			'QUERY_STRING' => '', 
+			'REQUEST_URI' => '/snapsearch/song.html?key=value', 
+		)
+	);
+
+	protected $basic_escaped_fragment_route = array(
 		'_GET'		=> array(
 			'_escaped_fragment_' => ''
 		),
@@ -134,7 +170,7 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		),
 	);
 
-	public $escaped_fragment_route = array(
+	protected $escaped_fragment_route = array(
 		'_GET'		=> array(
 			'key1' => 'value1', 
 			'_escaped_fragment_' => '/path2?key2=value2'
@@ -269,6 +305,57 @@ class DetectorTest extends \Codeception\TestCase\Test{
 		);
 
 		$detector = new Detector(null, array('^\/matched'), false, $request);
+
+		$this->assertTrue($detector->detect());
+
+	}
+
+	public function testValidFileExtensionsShouldBeInterceptedIfOtherFactorsAllowIt(){
+
+		$request = new Request(
+			$this->valid_file_extension['_GET'], 
+			$_POST, 
+			array(), 
+			$_COOKIE, 
+			$_FILES, 
+			$this->valid_file_extension['_SERVER']
+		);
+
+		$detector = new Detector(null, null, true, $request);
+
+		$this->assertTrue($detector->detect());
+
+	}
+
+	public function testInvalidFileExtensionsShouldNotBeIntercepted(){
+
+		$request = new Request(
+			$this->invalid_file_extension['_GET'], 
+			$_POST, 
+			array(), 
+			$_COOKIE, 
+			$_FILES, 
+			$this->invalid_file_extension['_SERVER']
+		);
+
+		$detector = new Detector(null, null, true, $request);
+
+		$this->assertFalse($detector->detect());
+
+	}
+
+	public function testNonExistentFileExtensionShouldBeInterceptedIfOtherFactorsAllowIt(){
+
+		$request = new Request(
+			$this->search_engine['_GET'], 
+			$_POST, 
+			array(), 
+			$_COOKIE, 
+			$_FILES, 
+			$this->search_engine['_SERVER']
+		);
+
+		$detector = new Detector(null, null, true, $request);
 
 		$this->assertTrue($detector->detect());
 
