@@ -24,7 +24,7 @@ Then run `composer install` or `composer update`.
 
 **Native**
 
-Just extract `src/SnapSearchClientPHP/` folder into your library location. Then use your own PSR-0 autoloader to autoload the classes.
+Just extract repository into your library location. Then use your own PSR-0 autoloader to autoload the classes inside `src/SnapSearchClientPHP/`.
 
 You can also use the supplied autoloader. First clone this project to your desired location, then write:
 
@@ -36,6 +36,8 @@ require_once('SnapSearch-Client-PHP/src/SnapSearchClientPHP/Bootstrap.php');
 If you don't want to use an autoloader, just require all the classes inside `src/SnapSearchClientPHP/` except `Bootstrap.php`.
 
 Note you will have to install the dependencies and autoload them manually as well. Look into `composer.json` file and find the dependencies in the `"require"` section.
+
+Don't forget about the `resources/` folder containing the necessary resources for this library to work.
 
 Usage
 -----
