@@ -36,7 +36,7 @@ class Client{
 		$this->api_key = $api_key;
 		$this->request_parameters = ($request_parameters) ? $request_parameters : array();
 		$this->api_url = ($api_url) ? $api_url : 'https://snapsearch.io/api/v1/robot';
-		$this->ca_path = ($ca_path) ? $ca_path : dirname(__FILE__) . '/Resources/cacert.pem';
+		$this->ca_path = ($ca_path) ? $ca_path : __DIR__ . '/../../resources/cacert.pem';
 
 	}
 
@@ -72,7 +72,7 @@ class Client{
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
 			'Content-Length: ' . $payload_length,
-		);
+		));
 		curl_setopt($curl, CURLOPT_HEADER, true);
 		curl_setopt($curl, CURLOPT_TIMEOUT, 30);
 		curl_setopt($curl, CURLOPT_CAINFO, $this->ca_path);
@@ -85,7 +85,7 @@ class Client{
 
 		if($response === false){
 
-			throw new SnapSearchException('Could not establish connection to SnapSearch due to curl connection error: ' . $curl_error;
+			throw new SnapSearchException('Could not establish connection to SnapSearch due to curl connection error: ' . $curl_error);
 
 		}
 
