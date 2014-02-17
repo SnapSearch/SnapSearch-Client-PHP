@@ -22,16 +22,19 @@ class InterceptorTest extends \Codeception\TestCase\Test{
 		'cache'			=> false
 	);
 
+	protected $encoded_url = 'http://example.com';
+
 	public function _before(){
 
 		$response_array = $this->response_array;
+		$encoded_url = $this->encoded_url;
 
 		$detector = Stub::make('SnapSearchClientPHP\Detector', array(
 			'detect'	=> function(){
 				return true;
 			},
-			'get_encoded_url'	=> function(){
-				return 'http://blah.com';
+			'get_encoded_url'	=> function() use ($encoded_url){
+				return $encoded_url;
 			}
 		));
 
@@ -45,13 +48,27 @@ class InterceptorTest extends \Codeception\TestCase\Test{
 
 	}
 
+	public function testBeforeInterceptCallableShouldReceiveTheCurrentUrl(){
+
+		$before_intercept_url = '';
+
+		$this->interceptor->before_intercept(function($url) use (&$before_intercept_url){
+			$before_intercept_url = $url;
+		});
+
+		$content = $this->interceptor->intercept();
+
+		$this->assertEquals($before_intercept_url, $this->encoded_url);
+
+	}
+
 	public function testBeforeInterceptCallableThatReturnsAnArrayWillBeTheResponseToInterception(){
 
 		$response_array = array(
 			'test' => 'value'
 		);
 
-		$this->interceptor->before_intercept(function() use ($response_array){
+		$this->interceptor->before_intercept(function($url) use ($response_array){
 			return $response_array;
 		});
 
@@ -75,17 +92,21 @@ class InterceptorTest extends \Codeception\TestCase\Test{
 
 	}
 
-	public function testAfterInterceptCallableShouldReceiveResponseArray(){
+	public function testAfterInterceptCallableShouldReceiveTheCurrentUrlAndResponseArray(){
+
+		$after_intercept_url = '';
 
 		$after_intercept_response_array = false;
 
 		//late binding so it's by reference
-		$this->interceptor->after_intercept(function($response_array) use (&$after_intercept_response_array){
+		$this->interceptor->after_intercept(function($url, $response_array) use (&$after_intercept_url, &$after_intercept_response_array){
+			$after_intercept_url = $url;
 			$after_intercept_response_array = $response_array;
 		});
 
 		$content = $this->interceptor->intercept();
 
+		$this->assertEquals($after_intercept_url, $this->encoded_url);
 		$this->assertEquals($after_intercept_response_array, $content);
 		$this->assertEquals($after_intercept_response_array, $this->response_array);
 
