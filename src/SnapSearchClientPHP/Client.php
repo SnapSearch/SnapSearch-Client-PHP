@@ -105,6 +105,8 @@ class Client{
 		curl_setopt($curl, CURLOPT_HEADER, true);
 		curl_setopt($curl, CURLOPT_TIMEOUT, 30);
 		curl_setopt($curl, CURLOPT_CAINFO, $this->ca_path);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
 		$response = curl_exec($curl);
