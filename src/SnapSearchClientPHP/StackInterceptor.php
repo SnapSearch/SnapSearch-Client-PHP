@@ -20,8 +20,6 @@ class StackInterceptor implements HttpKernelInterface{
 	 */
 	protected $app;
 
-	protected $detector;
-
 	/**
 	 * Interceptor Object
 	 * 
@@ -84,11 +82,12 @@ class StackInterceptor implements HttpKernelInterface{
 
 			if(is_callable($this->response_callback)){
 				
-				$data = $this->response_callback($response);
+				$response_callback = $this->response_callback;
+				$response = $response_callback($response);
 
-				$html = (!empty($data['html'])) ? $data['html'] : '';
-				$status = (!empty($data['status'])) ? $data['status'] : 200;
-				$headers = (!empty($data['headers'])) ? $data['headers'] : array();
+				$html = (!empty($response['html'])) ? $response['html'] : '';
+				$status = (!empty($response['status'])) ? $response['status'] : 200;
+				$headers = (!empty($response['headers'])) ? $response['headers'] : array();
 
 				return new Response($html, $status, $headers);
 

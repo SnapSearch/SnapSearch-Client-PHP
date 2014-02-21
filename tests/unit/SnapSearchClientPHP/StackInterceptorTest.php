@@ -93,4 +93,53 @@ class StackInterceptorTest extends \Codeception\TestCase\Test{
 
     }
 
+    public function testStackInterceptionWithCustomResponseCallback(){
+
+        $response_array = $this->response_array;
+
+        //core kernel, otherwise known as the controller
+        $app = new CallableHttpKernel(function(Request $request){
+            return new Response('did not get intercepted');
+        });
+
+        //interceptor is stubbed to always return a response
+        $interceptor = Stub::make('SnapSearchClientPHP\Interceptor', array(
+            'detector'  => Stub::make('SnapSearchClientPHP\Detector', array(
+                'request'   => function(){
+                    return true;
+                }
+            )),
+            'intercept' => function() use ($response_array){
+                return $response_array;
+            }
+        ));
+
+        $stack = new Builder;
+        $stack->push(
+            'SnapSearchClientPHP\StackInterceptor', 
+            $interceptor,
+            function($response){
+                return array(
+                    'status'    => 301,
+                    'html'      => 'example',
+                    'headers'   => array(
+                        'key'   => 'value'
+                    ),
+                );
+            }
+        );
+
+        $app = $stack->resolve($app);
+
+        $this->app = $app;
+
+        $request = Request::create('/');
+        $response = $this->app->handle($request);
+
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals('example', $response->getContent());
+        $this->assertTrue($response->headers->has('key'));
+
+    }
+
 }
