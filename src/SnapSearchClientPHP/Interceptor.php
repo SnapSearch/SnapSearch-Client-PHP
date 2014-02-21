@@ -59,13 +59,17 @@ class Interceptor{
 	 * If the callable returns an array, the array will be used as the returned response for Interceptor::intercept()
 	 * The "callable" typehint is only available php > 5.4
 	 * 
-	 * @param callable $before Anonymous function to be executed before interception
+	 * @param  callable    $before Anonymous function to be executed before interception
+	 *
+	 * @return Interceptor $this
 	 */
 	public function before_intercept($before){
 
 		if(is_callable($before)){
 			$this->before = $before;
 		}
+
+		return $this;
 
 	}
 
@@ -76,13 +80,17 @@ class Interceptor{
 	 * The callable should accept a string parameter and array parameter which will be respectively the current url being requested, and the snapshot response. 
 	 * The "callable" typehint is only available php > 5.4
 	 * 
-	 * @param callable $after Anonymous function to be executed after interception
+	 * @param  callable    $after Anonymous function to be executed after interception
+	 *
+	 * @return Interceptor $this
 	 */
 	public function after_intercept($after){
 
 		if(is_callable($after)){
 			$this->after = $after;
 		}
+
+		return $this;
 
 	}
 

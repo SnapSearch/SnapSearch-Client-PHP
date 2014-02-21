@@ -127,7 +127,7 @@ class InterceptorTest extends \Codeception\TestCase\Test{
 
 	}
 
-	public function testBeforeAndEmptyInterceptCallablesHaveToBeCallablesToBeCalled(){
+	public function testEmptyInterceptCallablesHaveToBeCallablesToBeCalled(){
 
 		$this->interceptor->before_intercept('not a callable');
 		$this->interceptor->after_intercept('not a callable');
@@ -136,6 +136,29 @@ class InterceptorTest extends \Codeception\TestCase\Test{
 
 		$this->assertInternalType('array', $content);
 		$this->assertEquals($content, $this->response_array);
+
+	}
+
+	public function testInterceptCallablesCanBeChained(){
+
+		$before_value = '';
+		$after_value = '';
+
+		$this->interceptor
+			->before_intercept(
+				function($url) use (&$before_value){
+					$before_value = 'success';
+				}
+			)
+			->after_intercept(
+				function($url, $response_array) use (&$after_value){
+					$after_value = 'success';
+				}
+			)
+			->intercept();
+
+		$this->assertEquals($before_value, 'success');
+		$this->assertEquals($after_value, 'success');
 
 	}
 
