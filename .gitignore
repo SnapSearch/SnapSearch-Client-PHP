@@ -10,6 +10,7 @@ bower_components/*
 .c9revisions/*
 *.log
 *.pid
+composer.lock
 
 #################
 ## Eclipse
