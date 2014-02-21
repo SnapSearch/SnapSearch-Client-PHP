@@ -7,6 +7,7 @@ Snapsearch Client PHP is PHP based framework agnostic HTTP client library for Sn
 
 * It's PSR-0 compliant.
 * Compatible with [Stack PHP](http://stackphp.com/) or HTTP Kernel frameworks.
+* Works on HHVM. (Check Travis!)
 
 SnapSearch provides similar libraries in other languages: https://github.com/SnapSearch/Snapsearch-Clients
 
