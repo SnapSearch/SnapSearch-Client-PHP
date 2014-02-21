@@ -6,169 +6,169 @@ use Codeception\Util\Stub;
 
 class InterceptorTest extends \Codeception\TestCase\Test{
 
-	protected $interceptor;
+    protected $interceptor;
 
-	protected $response_array = array(
-		'status'		=> 200,
-		'headers'		=> array(
-			array(
-				'name'	=> 'Date',
-				'value'	=> 'Tue, 19 Nov 2013 18:23:41 GMT'
-			)
-		),
-		'html'			=> '<html>Hi!</html>',
-		'screenshot'	=> '',
-		'date'			=> '324836',
-		'cache'			=> false
-	);
+    protected $response_array = array(
+        'status'        => 200,
+        'headers'       => array(
+            array(
+                'name'  => 'Date',
+                'value' => 'Tue, 19 Nov 2013 18:23:41 GMT'
+            )
+        ),
+        'html'          => '<html>Hi!</html>',
+        'screenshot'    => '',
+        'date'          => '324836',
+        'cache'         => false
+    );
 
-	protected $encoded_url = 'http://example.com';
+    protected $encoded_url = 'http://example.com';
 
-	public function _before(){
+    public function _before(){
 
-		$response_array = $this->response_array;
-		$encoded_url = $this->encoded_url;
+        $response_array = $this->response_array;
+        $encoded_url = $this->encoded_url;
 
-		$client = Stub::make('SnapSearchClientPHP\Client', array(
-			'request'	=> function($url) use ($response_array){
-				return $response_array;
-			}
-		));
+        $client = Stub::make('SnapSearchClientPHP\Client', array(
+            'request'   => function($url) use ($response_array){
+                return $response_array;
+            }
+        ));
 
-		$detector = Stub::make('SnapSearchClientPHP\Detector', array(
-			'detect'	=> function(){
-				return true;
-			},
-			'get_encoded_url'	=> function() use ($encoded_url){
-				return $encoded_url;
-			}
-		));
+        $detector = Stub::make('SnapSearchClientPHP\Detector', array(
+            'detect'    => function(){
+                return true;
+            },
+            'get_encoded_url'   => function() use ($encoded_url){
+                return $encoded_url;
+            }
+        ));
 
-		$this->interceptor = new Interceptor($client, $detector);
+        $this->interceptor = new Interceptor($client, $detector);
 
-	}
+    }
 
-	public function testBeforeInterceptCallableShouldReceiveTheCurrentUrl(){
+    public function testBeforeInterceptCallableShouldReceiveTheCurrentUrl(){
 
-		$before_intercept_url = '';
+        $before_intercept_url = '';
 
-		$this->interceptor->before_intercept(function($url) use (&$before_intercept_url){
-			$before_intercept_url = $url;
-		});
+        $this->interceptor->before_intercept(function($url) use (&$before_intercept_url){
+            $before_intercept_url = $url;
+        });
 
-		$content = $this->interceptor->intercept();
+        $content = $this->interceptor->intercept();
 
-		$this->assertEquals($before_intercept_url, $this->encoded_url);
+        $this->assertEquals($before_intercept_url, $this->encoded_url);
 
-	}
+    }
 
-	public function testBeforeInterceptCallableThatReturnsAnArrayWillBeTheResponseToInterception(){
+    public function testBeforeInterceptCallableThatReturnsAnArrayWillBeTheResponseToInterception(){
 
-		$response_array = array(
-			'test' => 'value'
-		);
+        $response_array = array(
+            'test' => 'value'
+        );
 
-		$this->interceptor->before_intercept(function($url) use ($response_array){
-			return $response_array;
-		});
+        $this->interceptor->before_intercept(function($url) use ($response_array){
+            return $response_array;
+        });
 
-		$content = $this->interceptor->intercept();
+        $content = $this->interceptor->intercept();
 
-		$this->assertEquals($content, $response_array);
+        $this->assertEquals($content, $response_array);
 
-	}
+    }
 
-	public function testBeforeInterceptCallableThatDoesNotReturnAnArrayWillNotBeTheResponseToInterception(){
+    public function testBeforeInterceptCallableThatDoesNotReturnAnArrayWillNotBeTheResponseToInterception(){
 
-		$response_string = 'i will not be the response!';
+        $response_string = 'i will not be the response!';
 
-		$this->interceptor->before_intercept(function() use ($response_string){
-			return $response_string;
-		});
+        $this->interceptor->before_intercept(function() use ($response_string){
+            return $response_string;
+        });
 
-		$content = $this->interceptor->intercept();
+        $content = $this->interceptor->intercept();
 
-		$this->assertNotEquals($content, $response_string);
+        $this->assertNotEquals($content, $response_string);
 
-	}
+    }
 
-	public function testAfterInterceptCallableShouldReceiveTheCurrentUrlAndResponseArray(){
+    public function testAfterInterceptCallableShouldReceiveTheCurrentUrlAndResponseArray(){
 
-		$after_intercept_url = '';
+        $after_intercept_url = '';
 
-		$after_intercept_response_array = false;
+        $after_intercept_response_array = false;
 
-		//late binding so it's by reference
-		$this->interceptor->after_intercept(function($url, $response_array) use (&$after_intercept_url, &$after_intercept_response_array){
-			$after_intercept_url = $url;
-			$after_intercept_response_array = $response_array;
-		});
+        //late binding so it's by reference
+        $this->interceptor->after_intercept(function($url, $response_array) use (&$after_intercept_url, &$after_intercept_response_array){
+            $after_intercept_url = $url;
+            $after_intercept_response_array = $response_array;
+        });
 
-		$content = $this->interceptor->intercept();
+        $content = $this->interceptor->intercept();
 
-		$this->assertEquals($after_intercept_url, $this->encoded_url);
-		$this->assertEquals($after_intercept_response_array, $content);
-		$this->assertEquals($after_intercept_response_array, $this->response_array);
+        $this->assertEquals($after_intercept_url, $this->encoded_url);
+        $this->assertEquals($after_intercept_response_array, $content);
+        $this->assertEquals($after_intercept_response_array, $this->response_array);
 
-	}
+    }
 
-	public function testAfterInterceptCallableDoesNotNeedToAcceptParameters(){
+    public function testAfterInterceptCallableDoesNotNeedToAcceptParameters(){
 
-		$after_intercept = false;
+        $after_intercept = false;
 
-		//late binding so it's by reference
-		$this->interceptor->after_intercept(function() use (&$after_intercept){
-			$after_intercept = 'whateveriwant';
-		});
+        //late binding so it's by reference
+        $this->interceptor->after_intercept(function() use (&$after_intercept){
+            $after_intercept = 'whateveriwant';
+        });
 
-		$this->interceptor->intercept();
+        $this->interceptor->intercept();
 
-		$this->assertEquals($after_intercept, 'whateveriwant');
+        $this->assertEquals($after_intercept, 'whateveriwant');
 
-	}
+    }
 
-	public function testEmptyInterceptCallablesHaveToBeCallablesToBeCalled(){
+    public function testEmptyInterceptCallablesHaveToBeCallablesToBeCalled(){
 
-		$this->interceptor->before_intercept('not a callable');
-		$this->interceptor->after_intercept('not a callable');
+        $this->interceptor->before_intercept('not a callable');
+        $this->interceptor->after_intercept('not a callable');
 
-		$content = $this->interceptor->intercept();
+        $content = $this->interceptor->intercept();
 
-		$this->assertInternalType('array', $content);
-		$this->assertEquals($content, $this->response_array);
+        $this->assertInternalType('array', $content);
+        $this->assertEquals($content, $this->response_array);
 
-	}
+    }
 
-	public function testInterceptCallablesCanBeChained(){
+    public function testInterceptCallablesCanBeChained(){
 
-		$before_value = '';
-		$after_value = '';
+        $before_value = '';
+        $after_value = '';
 
-		$this->interceptor
-			->before_intercept(
-				function($url) use (&$before_value){
-					$before_value = 'success';
-				}
-			)
-			->after_intercept(
-				function($url, $response_array) use (&$after_value){
-					$after_value = 'success';
-				}
-			)
-			->intercept();
+        $this->interceptor
+            ->before_intercept(
+                function($url) use (&$before_value){
+                    $before_value = 'success';
+                }
+            )
+            ->after_intercept(
+                function($url, $response_array) use (&$after_value){
+                    $after_value = 'success';
+                }
+            )
+            ->intercept();
 
-		$this->assertEquals($before_value, 'success');
-		$this->assertEquals($after_value, 'success');
+        $this->assertEquals($before_value, 'success');
+        $this->assertEquals($after_value, 'success');
 
-	}
+    }
 
-	public function testInterception(){
+    public function testInterception(){
 
-		$content = $this->interceptor->intercept();
+        $content = $this->interceptor->intercept();
 
-		$this->assertInternalType('array', $content);
-		$this->assertEquals($content, $this->response_array);
+        $this->assertInternalType('array', $content);
+        $this->assertEquals($content, $this->response_array);
 
-	}
+    }
 
 }
