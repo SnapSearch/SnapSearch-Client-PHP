@@ -29,18 +29,18 @@ class InterceptorTest extends \Codeception\TestCase\Test{
 		$response_array = $this->response_array;
 		$encoded_url = $this->encoded_url;
 
+		$client = Stub::make('SnapSearchClientPHP\Client', array(
+			'request'	=> function($url) use ($response_array){
+				return $response_array;
+			}
+		));
+
 		$detector = Stub::make('SnapSearchClientPHP\Detector', array(
 			'detect'	=> function(){
 				return true;
 			},
 			'get_encoded_url'	=> function() use ($encoded_url){
 				return $encoded_url;
-			}
-		));
-
-		$client = Stub::make('SnapSearchClientPHP\Client', array(
-			'request'	=> function($url) use ($response_array){
-				return $response_array;
 			}
 		));
 

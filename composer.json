@@ -13,10 +13,17 @@
 	"require": {
 		"php": ">=5.3.3",
 		"ext-curl": "*",
-		"symfony/http-foundation": "~2.3"
+		"symfony/http-foundation": "~2.1"
 	},
 	"require-dev": {
+		"symfony/http-kernel": "~2.1",
+		"stack/builder" : "~1.0",
+		"stack/callable-http-kernel": "~1.0@dev",
 		"codeception/codeception": "1.8.3"
+	},
+	"suggest": {
+		"symfony/http-kernel": "Required for Stack PHP integration. Version ~2.1",
+		"stack/builder": "Required for elegant middleware construction. Version ~1.0"
 	},
 	"config": {
 		"bin-dir": "bin/"

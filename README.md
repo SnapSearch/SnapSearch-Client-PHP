@@ -3,7 +3,7 @@ Snapsearch Client PHP
 
 [![Build Status](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP.png?branch=master)](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP)
 
-Snapsearch Client PHP is PHP based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/).
+Snapsearch Client PHP is PHP based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/). It's PSR-0 compliant and can be integrated with [Stack PHP](http://stackphp.com/) or HTTP Kernel frameworks.
 
 SnapSearch provides similar libraries in other languages: https://github.com/SnapSearch/Snapsearch-Clients
 
@@ -151,6 +151,9 @@ $detector = new \SnapSearchClientPHP\Detector(
 	$check_static_files
 );
 
+//robots can be direct accessed and manipulated
+$detector->robots['match'][] = 'my_custom_bot_to_be_matched';
+
 $interceptor = new \SnapSearchClientPHP\Interceptor($client, $detector);
 
 //your custom cache driver
@@ -194,7 +197,7 @@ if($response){
 	//the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
 	if(!empty($response['headers'])){
 		foreach($response['headers'] as $header){
-			if($header['name'] == 'Location'){
+			if(strtolower($header['name']) == 'location'){
 				header($header['name'] . ': ' . $header['value']);
 			}
 		}
@@ -211,11 +214,51 @@ if($response){
 }
 ```
 
-The `$check_file_extensions` boolean is available for applications that might serve static files. Usually the HTTP server serves up static files and these requests never get proxied to the application, this is why by default this boolean is false. However in cases where it does serve up static files, you can switch this to true to prevent static files routes from being intercepted. 
+**Stack PHP Usage**
+
+Stack PHP is a HTTP Kernel Middleware Layer Framework for PHP similar to Ruby Rack or Node Connect. The below example uses PHP 5.4 code.
+
+```php
+$app =  //HTTP Kernel controller
+
+$stack = (new \Stack\Builder)->push(
+	'\SnapSearchClientPHP\StackInterceptor',
+	new Interceptor(
+		new Client('email', 'key'), 
+		new Detector
+	)->before_intercept(function($url){
+		//before interception callback (optional and chainable)
+	})->after_intercept(function($url, $response){
+		//after interception callback (optional and chainable)
+	}),
+	function(array $response){
+
+		//this callback is completely optional, it allows you to customise your response
+		//the $response array comes from SnapSearch and contains [(string) 'status', (array) 'headers', (string) 'html']
+
+		return [
+			'status'	=> $response['status'],
+			'headers'	=> [
+				//array of 'header_key' => 'header_value'
+			],
+			'html'		=> $response['html']
+		];
+
+	}
+);
+
+$app = $stack->resolve($app);
+
+$request  = Request::createFromGlobals();
+$response = $app->handle($request)->send();
+$app->terminate($request, $response);
+//or just do this if you have Stack\run
+//\Stack\run($app);
+```
+
+The `$check_file_extensions` boolean for the Detector constructor is available for applications that might serve static files. Usually the HTTP server serves up static files and these requests never get proxied to the application, this is why by default this boolean is false. However in cases where it does serve up static files, you can switch this to true to prevent static files routes from being intercepted. 
 
 It can be more efficient or easier to blacklist routes which lead to static files instead. This has the advantage of allowing you to prevent routes that go to binary resources which may not end in specific file extensions. Such as streaming audio/video.
-
-There's a number of extra features inside `SnapSearchClientPHP\Detector`. Check the source code, all the functions are commented.
 
 SnapSearchClientPHP can of course be used in other areas such as javascript enhanced scraping, so it doesn't force you to put it at the entry point if you're using it for other purposes. In that case just use the `SnapSearchPHP\Client` to send requests to the SnapSearch API.
 
