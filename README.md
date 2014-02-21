@@ -3,7 +3,10 @@ Snapsearch Client PHP
 
 [![Build Status](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP.png?branch=master)](https://travis-ci.org/SnapSearch/SnapSearch-Client-PHP)
 
-Snapsearch Client PHP is PHP based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/). It's PSR-0 compliant and can be integrated with [Stack PHP](http://stackphp.com/) or HTTP Kernel frameworks.
+Snapsearch Client PHP is PHP based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/).
+
+* It's PSR-0 compliant.
+* Compatible with [Stack PHP](http://stackphp.com/) or HTTP Kernel frameworks.
 
 SnapSearch provides similar libraries in other languages: https://github.com/SnapSearch/Snapsearch-Clients
 
@@ -46,7 +49,7 @@ SnapSearchClientPHP should be best started at the entry point your application. 
 
 For full documentation on the API and API request parameters see: https://snapsearch.io/docs
 
-**Basic Usage**
+###Basic Usage
 
 ```php
 $client = new \SnapSearchClientPHP\Client('email', 'key');
@@ -120,7 +123,7 @@ $response = [
 ]
 ```
 
-**Advanced Usage**
+###Advanced Usage
 
 ```php
 $request_parameters = array(
@@ -153,26 +156,28 @@ $detector = new \SnapSearchClientPHP\Detector(
 
 //robots can be direct accessed and manipulated
 $detector->robots['match'][] = 'my_custom_bot_to_be_matched';
+$detector->robots['ignore'][] = 'my_ignored_robot';
+
+//extensions can as well, add to 'generic' or 'php'
+$detector->extensions['php'][] = 'validextension';
 
 $interceptor = new \SnapSearchClientPHP\Interceptor($client, $detector);
 
 //your custom cache driver
 $cache = new YourCustomClientSideCacheDriver;
 
-//this callback is called after the Detector has detected a search engine robot
+//the before_intercept callback is called after the Detector has detected a search engine robot
 //if this callback returns an array, the array will be used as the $response to $interceptor->intercept();
 //use it for client side caching in order to have millisecond responses to search engines
+//the after_intercept callback can be used to store the snapshot from SnapSearch as a client side cached resource
+//this is of course optional as SnapSearch caches your snapshot as well!
 $interceptor->before_intercept(function($url) use ($cache){
 
 	//get cache from redis/filesystem..etc
 	//returned value should array if successful or boolean false if cache did not exist
 	return $cache->get($url); 
 	
-});
-
-//this callback can be used to store the snapshot from SnapSearch as a client side cached resource
-//this is of course optional as SnapSearch caches your snapshot as well!
-$interceptor->after_intercept(function($url, $response) use ($cache){
+})->after_intercept(function($url, $response) use ($cache){
 
 	//the cached time should be less then the cached time you passed to SnapSearch, we recommend half the SnapSearch cachetime
 	$time = '12hrs';
@@ -214,12 +219,12 @@ if($response){
 }
 ```
 
-**Stack PHP Usage**
+###Stack PHP Usage
 
 Stack PHP is a HTTP Kernel Middleware Layer Framework for PHP similar to Ruby Rack or Node Connect. The below example uses PHP 5.4 code.
 
 ```php
-$app =  //HTTP Kernel controller
+$app =  //HTTP Kernel core controller
 
 $stack = (new \Stack\Builder)->push(
 	'\SnapSearchClientPHP\StackInterceptor',
