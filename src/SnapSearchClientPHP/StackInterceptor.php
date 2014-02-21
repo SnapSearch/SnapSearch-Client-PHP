@@ -20,6 +20,8 @@ class StackInterceptor implements HttpKernelInterface{
 	 */
 	protected $app;
 
+	protected $detector;
+
 	/**
 	 * Interceptor Object
 	 * 
@@ -72,6 +74,9 @@ class StackInterceptor implements HttpKernelInterface{
 		if($type !== HttpKernelInterface::MASTER_REQUEST){
 			return $this->app->handle($request, $type, $catch);
 		}
+
+		//replace the default request object with the middleware request object
+		$this->interceptor->detector->request($request);
 
 		$response = $this->interceptor->intercept();
 

@@ -39,6 +39,11 @@ class StackInterceptorTest extends \Codeception\TestCase\Test{
 
         //interceptor is stubbed to always return a response
         $interceptor = Stub::make('SnapSearchClientPHP\Interceptor', array(
+            'detector'  => Stub::make('SnapSearchClientPHP\Detector', array(
+                'request'   => function(){
+                    return true;
+                }
+            )),
             'intercept' => function() use ($response_array){
                 return $response_array;
             }

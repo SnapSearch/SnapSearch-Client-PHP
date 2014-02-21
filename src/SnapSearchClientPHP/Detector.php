@@ -22,7 +22,7 @@ class Detector{
 	 *     ]
 	 * ]
 	 * The ignore list takes precedence over the match list when running the detection algorithm.
-	 * You can change this array to customise your set of matched or ignored robots.
+	 * You can change this array to customise your set of robots.
 	 * 
 	 * @var array
 	 */
@@ -99,6 +99,22 @@ class Detector{
 		$this->robots = $this->parse_json($robots_json);
 		$extensions_json = ($extensions_json) ? $extensions_json : __DIR__ . '/../../resources/extensions.json';
 		$this->extensions = $this->parse_json($extensions_json);
+
+	}
+
+	/**
+	 * Getter/Setter for the Symfony Request Object. 
+	 * Used with the StackInterceptor in order to use the middleware request pipeline.
+	 * 
+	 * @param Request $request
+	 */
+	public function request(Request $request = null){
+
+		if(!$request){
+			return $this->request;
+		}
+
+		$this->request = $request;
 
 	}
 

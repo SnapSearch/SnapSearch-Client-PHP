@@ -103,17 +103,17 @@ $response = [
 	'html'				=> '<html></html>',
 	'message'			=> 'Success/Failed/Validation Errors',
 	'pageErrors'		=> [
-		{
+		[
 			error: 'Error: document.querySelector(...) is null',
 			trace: [
-				{
+				[
 					'file': 'filename',
 					'function': 'anonymous',
 					'line': '41',
 					'sourceURL': 'urltofile'
-				}
+				]
 			]
-		}
+		]
 	],
 	'screensot'			=> 'BASE64 ENCODED IMAGE CONTENT',
 	'status'			=> 200

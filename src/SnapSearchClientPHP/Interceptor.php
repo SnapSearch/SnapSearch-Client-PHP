@@ -11,18 +11,18 @@ use SnapSearchClientPHP\Detector;
 class Interceptor{
 
 	/**
-	 * Detector
-	 * 
-	 * @var Detector
-	 */
-	protected $detector;
-
-	/**
 	 * Client
 	 * 
 	 * @var Client
 	 */
-	protected $client;
+	public $client;
+
+	/**
+	 * Detector
+	 * 
+	 * @var Detector
+	 */
+	public $detector;
 
 	/**
 	 * Before interception callback
