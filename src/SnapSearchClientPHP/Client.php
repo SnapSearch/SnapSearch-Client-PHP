@@ -94,19 +94,32 @@ class Client{
 
         $curl = curl_init();
 
+        //api url
         curl_setopt($curl, CURLOPT_URL, $this->api_url);
+        //post method type
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+        //http basic auth
         curl_setopt($curl, CURLOPT_USERPWD, "{$this->api_email}:{$this->api_key}");
+        //post payload
         curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
+        //request headers
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Content-Length: ' . $payload_length,
         ));
+        //include response headers
         curl_setopt($curl, CURLOPT_HEADER, true);
+        //http timeout of 30s
         curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+        //accept compressed responses
+        curl_setopt($curl, CURLOPT_ENCODING, '');
+        //cacert information
         curl_setopt($curl, CURLOPT_CAINFO, $this->ca_path);
+        //verify ssl connection
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        //verify ssl host
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+        //return data as string
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         $response = curl_exec($curl);
