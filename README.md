@@ -108,8 +108,8 @@ $response = [
     'message'           => 'Success/Failed/Validation Errors',
     'pageErrors'        => [
         [
-            error   => 'Error: document.querySelector(...) is null',
-            trace   => [
+            'error'   => 'Error: document.querySelector(...) is null',
+            'trace'   => [
                 [
                     'file'      => 'filename',
                     'function'  => 'anonymous',
