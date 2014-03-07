@@ -60,33 +60,33 @@ $interceptor = new \SnapSearchClientPHP\Interceptor($client, $detector);
 //exceptions should be ignored in production, but during development you can check it for validation errors
 try{
 
-	$response = $this->interceptor->intercept();
+    $response = $this->interceptor->intercept();
 
 }catch(SnapSearchClientPHP\SnapSearchException $e){}
 
 if($response){
 
-	//this request is from a robot
+    //this request is from a robot
 
-	//status code
-	header(' ', true, $response['status']); //as of PHP 5.4, you can use http_response_code($response['status']);
-	
-	//the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
-	if(!empty($response['headers'])){
-		foreach($response['headers'] as $header){
-			if($header['name'] == 'Location'){
-				header($header['name'] . ': ' . $header['value']);
-			}
-		}
-	}
+    //status code
+    header(' ', true, $response['status']); //as of PHP 5.4, you can use http_response_code($response['status']);
+    
+    //the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
+    if(!empty($response['headers'])){
+        foreach($response['headers'] as $header){
+            if($header['name'] == 'Location'){
+                header($header['name'] . ': ' . $header['value']);
+            }
+        }
+    }
 
-	//content
-	echo $response['html'];
+    //content
+    echo $response['html'];
 
 }else{
 
-	//this request is not from a robot
-	//continue with normal operations...
+    //this request is not from a robot
+    //continue with normal operations...
 
 }
 ```
@@ -95,32 +95,32 @@ Here's an example `$response` variable (not all variables are available, you nee
 
 ```php
 $response = [
-	'cache' 			=> true/false,
-	'callbackResult'	=> '',
-	'date'				=> 1390382314,
-	'headers'			=> [
-		[
-			'name'	=> 'Content-Type',
-			'value'	=> 'text/html'
-		]
-	],
-	'html'				=> '<html></html>',
-	'message'			=> 'Success/Failed/Validation Errors',
-	'pageErrors'		=> [
-		[
-			error: 'Error: document.querySelector(...) is null',
-			trace: [
-				[
-					'file': 'filename',
-					'function': 'anonymous',
-					'line': '41',
-					'sourceURL': 'urltofile'
-				]
-			]
-		]
-	],
-	'screensot'			=> 'BASE64 ENCODED IMAGE CONTENT',
-	'status'			=> 200
+    'cache'             => true/false,
+    'callbackResult'    => '',
+    'date'              => 1390382314,
+    'headers'           => [
+        [
+            'name'  => 'Content-Type',
+            'value' => 'text/html'
+        ]
+    ],
+    'html'              => '<html></html>',
+    'message'           => 'Success/Failed/Validation Errors',
+    'pageErrors'        => [
+        [
+            error   => 'Error: document.querySelector(...) is null',
+            trace   => [
+                [
+                    'file'      => 'filename',
+                    'function'  => 'anonymous',
+                    'line'      => '41',
+                    'sourceURL' => 'urltofile'
+                ]
+            ]
+        ]
+    ],
+    'screensot'         => 'BASE64 ENCODED IMAGE CONTENT',
+    'status'            => 200
 ]
 ```
 
@@ -128,15 +128,15 @@ $response = [
 
 ```php
 $request_parameters = array(
-	//add your API request parameters if you have any...
+    //add your API request parameters if you have any...
 );
 
 $blacklisted_routes = array(
-	//add your black listed routes if you have any...
+    //add your black listed routes if you have any...
 );
 
 $whitelisted_routes = array(
-	//add your white listed routes if you have any...
+    //add your white listed routes if you have any...
 );
 
 $symfony_http_request_object = //get the Symfony\Component\HttpFoundation\Request
@@ -148,11 +148,11 @@ $check_static_files = //if you wish for SnapSearchClient to check if the URL lea
 $client = new \SnapSearchClientPHP\Client('email', 'key', $request_parameters);
 
 $detector = new \SnapSearchClientPHP\Detector(
-	$blacklisted_routes, 
-	$whitelisted_routes, 
-	$symfony_http_request_object,
-	$robot_json_path,
-	$check_static_files
+    $blacklisted_routes, 
+    $whitelisted_routes, 
+    $symfony_http_request_object,
+    $robot_json_path,
+    $check_static_files
 );
 
 //robots can be direct accessed and manipulated
@@ -174,48 +174,48 @@ $cache = new YourCustomClientSideCacheDriver;
 //this is of course optional as SnapSearch caches your snapshot as well!
 $interceptor->before_intercept(function($url) use ($cache){
 
-	//get cache from redis/filesystem..etc
-	//returned value should array if successful or boolean false if cache did not exist
-	return $cache->get($url); 
-	
+    //get cache from redis/filesystem..etc
+    //returned value should array if successful or boolean false if cache did not exist
+    return $cache->get($url); 
+    
 })->after_intercept(function($url, $response) use ($cache){
 
-	//the cached time should be less then the cached time you passed to SnapSearch, we recommend half the SnapSearch cachetime
-	$time = '12hrs';
-	$cache->store($url, $response, $time);
-	
+    //the cached time should be less then the cached time you passed to SnapSearch, we recommend half the SnapSearch cachetime
+    $time = '12hrs';
+    $cache->store($url, $response, $time);
+    
 });
 
 //exceptions should be ignored in production, but during development you can check it for validation errors
 try{
 
-	$response = $this->interceptor->intercept();
+    $response = $this->interceptor->intercept();
 
 }catch(SnapSearchClientPHP\SnapSearchException $e){}
 
 if($response){
 
-	//this request is from a robot
+    //this request is from a robot
 
-	//status code
-	header(' ', true, $response['status']); //as of PHP 5.4, you can use http_response_code($response['status']);
-	
-	//the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
-	if(!empty($response['headers'])){
-		foreach($response['headers'] as $header){
-			if(strtolower($header['name']) == 'location'){
-				header($header['name'] . ': ' . $header['value']);
-			}
-		}
-	}
-	
-	//content
-	echo $response['html'];
+    //status code
+    header(' ', true, $response['status']); //as of PHP 5.4, you can use http_response_code($response['status']);
+    
+    //the complete $response['headers'] is not returned to the search engine due to potential content or transfer encoding issues, except for the potential location header, which is used when there is an HTTP redirect
+    if(!empty($response['headers'])){
+        foreach($response['headers'] as $header){
+            if(strtolower($header['name']) == 'location'){
+                header($header['name'] . ': ' . $header['value']);
+            }
+        }
+    }
+    
+    //content
+    echo $response['html'];
 
 }else{
 
-	//this request is not from a robot
-	//continue with normal operations...
+    //this request is not from a robot
+    //continue with normal operations...
 
 }
 ```
@@ -228,29 +228,43 @@ Stack PHP is a HTTP Kernel Middleware Layer Framework for PHP similar to Ruby Ra
 $app =  //HTTP Kernel core controller
 
 $stack = (new \Stack\Builder)->push(
-	'\SnapSearchClientPHP\StackInterceptor',
-	new Interceptor(
-		new Client('email', 'key'), 
-		new Detector
-	)->before_intercept(function($url){
-		//before interception callback (optional and chainable)
-	})->after_intercept(function($url, $response){
-		//after interception callback (optional and chainable)
-	}),
-	function(array $response){
+    '\SnapSearchClientPHP\StackInterceptor',
+    new Interceptor(
+        new Client('email', 'key'), 
+        new Detector
+    )->before_intercept(function($url){
+        //before interception callback (optional and chainable)
+    })->after_intercept(function($url, $response){
+        //after interception callback (optional and chainable)
+    }),
+    function(array $response){
 
-		//this callback is completely optional, it allows you to customise your response
-		//the $response array comes from SnapSearch and contains [(string) 'status', (array) 'headers', (string) 'html']
+        //this callback is completely optional, it allows you to customise your response
+        //the $response array comes from SnapSearch and contains [(string) 'status', (array) 'headers', (string) 'html']
 
-		return [
-			'status'	=> $response['status'],
-			'headers'	=> [
-				//array of 'header_key' => 'header_value'
-			],
-			'html'		=> $response['html']
-		];
+        //remember $response['headers'] is in this format:
+        //[
+        //    [
+        //        'name'  => 'Location',
+        //        'value' => 'http://redirect.com/'
+        //    ]
+        //]
+        //it's an array of arrays which contain name and value properties
+        //however the returned headers needs to be in a format of:
+        //[
+        //    'Location'  => 'http://redirect.com/'
+        //]
+        //this is an array of header keys to header values
 
-	}
+        return [
+            'status'    => $response['status'],
+            'headers'   => [
+                //array of 'header_key' => 'header_value'
+            ],
+            'html'      => $response['html']
+        ];
+
+    }
 );
 
 $app = $stack->resolve($app);
