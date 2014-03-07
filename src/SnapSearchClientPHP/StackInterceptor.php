@@ -89,7 +89,12 @@ class StackInterceptor implements HttpKernelInterface{
                 $status = (!empty($response['status'])) ? $response['status'] : 200;
                 $headers = (!empty($response['headers'])) ? $response['headers'] : array();
 
-                return new Response($html, $status, $headers);
+                $headers_output = array();
+                foreach($headers as $header){
+                    $headers_output[$header['name']] = $header['value'];
+                }
+
+                return new Response($html, $status, $headers_output);
 
             }else{
 

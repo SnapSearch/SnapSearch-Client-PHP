@@ -250,17 +250,20 @@ $stack = (new \Stack\Builder)->push(
         //    ]
         //]
         //it's an array of arrays which contain name and value properties
-        //however the returned headers needs to be in a format of:
-        //[
-        //    'Location'  => 'http://redirect.com/'
-        //]
-        //this is an array of header keys to header values
+
+        //it's recommended to not pass through all of the headers, due to possible encoding problems
+        //your server will already output the necessary headers anyway
+        //however we are passing through the location header if it exists
+        $headers = array_filter($response['headers'], function($header){
+            if(strtolower($header['name']) == 'location'){
+                return true;
+            }
+            return false;
+        });
 
         return [
             'status'    => $response['status'],
-            'headers'   => [
-                //array of 'header_key' => 'header_value'
-            ],
+            'headers'   => $headers,
             'html'      => $response['html']
         ];
 

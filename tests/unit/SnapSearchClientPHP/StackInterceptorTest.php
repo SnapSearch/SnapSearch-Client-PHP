@@ -20,6 +20,10 @@ class StackInterceptorTest extends \Codeception\TestCase\Test{
             array(
                 'name'  => 'Location',
                 'value' => 'http://somewhereelse.com'
+            ),
+            array(
+                'name'  => 'Non existent',
+                'value' => 'Non existent',
             )
         ),
         'html'          => '<html>Hi!</html>',
@@ -119,13 +123,21 @@ class StackInterceptorTest extends \Codeception\TestCase\Test{
             'SnapSearchClientPHP\StackInterceptor', 
             $interceptor,
             function($response){
+
+                //pass through location header but nothing else
+                $headers = array_filter($response['headers'], function($header){
+                    if(strtolower($header['name']) == 'location'){
+                        return true;
+                    }
+                    return false;
+                });
+
                 return array(
                     'status'    => 301,
                     'html'      => 'example',
-                    'headers'   => array(
-                        'key'   => 'value'
-                    ),
+                    'headers'   => $headers,
                 );
+
             }
         );
 
@@ -138,7 +150,8 @@ class StackInterceptorTest extends \Codeception\TestCase\Test{
 
         $this->assertEquals(301, $response->getStatusCode());
         $this->assertEquals('example', $response->getContent());
-        $this->assertTrue($response->headers->has('key'));
+        $this->assertTrue($response->headers->has('Location'));
+        $this->assertFalse($response->headers->has('Non existent'));
 
     }
 
