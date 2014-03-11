@@ -21,7 +21,7 @@ Requires 5.3.3 or above and Curl extension.
 Add this to your `composer.json`
 
 ```
-"snapsearch/snapsearch-client-php": "~1.0.0"
+"snapsearch/snapsearch-client-php": "~1.1.0"
 ```
 
 Then run `composer install` or `composer update`.
