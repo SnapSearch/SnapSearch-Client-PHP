@@ -180,19 +180,22 @@ class StackInterceptorTest extends \Codeception\TestCase\Test{
         //just making sure the callback was actually called, this will be late binded
         $was_this_called = false;
 
+        //making tests compatible with php 5.3
+        $self = $this;
+
         //snapsearch layer
         $stack->push(
             'SnapSearchClientPHP\StackInterceptor', 
             $interceptor,
             null,
-            function($exception, $request) use (&$was_this_called){
+            function($exception, $request) use (&$was_this_called, $self){
 
                 //the SnapSearchException will be received here
-                $this->assertInstanceOf('SnapSearchClientPHP\SnapSearchException', $exception);
-                $this->assertEquals('Oh no something went wrong!', $exception->getMessage());
+                $self->assertInstanceOf('SnapSearchClientPHP\SnapSearchException', $exception);
+                $self->assertEquals('Oh no something went wrong!', $exception->getMessage());
 
                 //the request object will also be available if something failed
-                $this->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $request);
+                $self->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $request);
 
                 $was_this_called = true;
 
