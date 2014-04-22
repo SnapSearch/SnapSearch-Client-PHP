@@ -35,6 +35,13 @@ class StackInterceptor implements HttpKernelInterface{
     protected $response_callback;
 
     /**
+     * Custom exception callback
+     * 
+     * @var callable
+     */
+    protected $exception_callback;
+
+    /**
      * Constructor
      *
      * This is intended to be used inside Stack PHP, for example:
@@ -42,17 +49,26 @@ class StackInterceptor implements HttpKernelInterface{
      *     'SnapSearchClientPHP\StackInterceptor', 
      *     new Interceptor(new Client('email', 'key'), new Detector)
      * )->resolve();
+     *
+     * Any SnapSearchExceptions will be ignored, since we're assuming we're using this in production.
+     * If you want to deal with those exceptions, just pass in an $exception_callback.
+     * The reason being is that during production, exceptions are only possible if the remote server failed.
+     * In that case, the entire application did not fail, as it is non critical.
+     * Any validation exceptions should be caught during development.
      * 
-     * @param HttpKernelInterface $app               The next HTTP Kernel middleware
-     * @param Interceptor         $interceptor       Interceptor instance
-     * @param boolean             $response_callback Callback that should accept a Response object
-     *                                               and return an array ['status', 'headers', 'html']
+     * @param HttpKernelInterface $app                The next HTTP Kernel middleware
+     * @param Interceptor         $interceptor        Interceptor instance
+     * @param callback            $response_callback  Callback that should accept a Response object
+     *                                                and return an array ['status', 'headers', 'html']
+     * @param callback            $exception_callback Callback that should be used if there was a SnapSearchException
+     *                                                it should accept an exception and a request object
      */
-    public function __construct(HttpKernelInterface $app, Interceptor $interceptor, $response_callback = false){
+    public function __construct(HttpKernelInterface $app, Interceptor $interceptor, $response_callback = null, $exception_callback = null){
 
         $this->app = $app;
         $this->interceptor = $interceptor;
         $this->response_callback = $response_callback;
+        $this->exception_callback = $exception_callback;
 
     }
 
@@ -76,7 +92,21 @@ class StackInterceptor implements HttpKernelInterface{
         //replace the default request object with the middleware request object
         $this->interceptor->detector->request($request);
 
-        $response = $this->interceptor->intercept();
+        try{
+
+            $response = $this->interceptor->intercept();
+
+        }catch(SnapSearchException $exception){
+
+            if(is_callable($this->exception_callback)){
+                $exception_callback = $this->exception_callback;
+                $exception_callback($exception, $request);
+            }
+
+            //just pass through to the next layer if there's an exception
+            return $this->app->handle($request, $type, $catch);
+
+        }
 
         if($response){
 

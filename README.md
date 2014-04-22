@@ -277,6 +277,15 @@ $stack = (new \Stack\Builder)->push(
             'html'      => $response['html']
         ];
 
+    },
+    function($exception, $request){
+
+        //this is the exception callback and it's completely optional
+        //it will only be called if a SnapSearchException is raised
+        //which only happens if SnapSearch's servers are temporarily offline
+        //if there is an exception, this middleware will simply pass to the next layer
+        //if you want to stop and inspect or log the actual exception, this is where you can do it
+
     }
 );
 

@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Stack\Builder;
 use Stack\CallableHttpKernel;
 
+use SnapSearchClientPHP\SnapSearchException;
+
 class StackInterceptorTest extends \Codeception\TestCase\Test{
 
     protected $app;
@@ -152,6 +154,68 @@ class StackInterceptorTest extends \Codeception\TestCase\Test{
         $this->assertEquals('example', $response->getContent());
         $this->assertTrue($response->headers->has('Location'));
         $this->assertFalse($response->headers->has('Non existent'));
+
+    }
+
+    public function testStackInterceptionWithExceptionCallback(){
+
+        $app = new CallableHttpKernel(function(Request $request){
+            return new Response('did not get intercepted');
+        });
+
+        //the interceptor will now return a SnapSearchException
+        $interceptor = Stub::make('SnapSearchClientPHP\Interceptor', array(
+            'detector'  => Stub::make('SnapSearchClientPHP\Detector', array(
+                'request'   => function(){
+                    return true;
+                }
+            )),
+            'intercept' => function(){
+                throw new SnapSearchException('Oh no something went wrong!');
+            }
+        ));
+
+        $stack = new Builder;
+
+        //just making sure the callback was actually called, this will be late binded
+        $was_this_called = false;
+
+        //snapsearch layer
+        $stack->push(
+            'SnapSearchClientPHP\StackInterceptor', 
+            $interceptor,
+            null,
+            function($exception, $request) use (&$was_this_called){
+
+                //the SnapSearchException will be received here
+                $this->assertInstanceOf('SnapSearchClientPHP\SnapSearchException', $exception);
+                $this->assertEquals('Oh no something went wrong!', $exception->getMessage());
+
+                //the request object will also be available if something failed
+                $this->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $request);
+
+                $was_this_called = true;
+
+            }
+        );
+
+        //random layer underneath that will be called because exceptions are ignored in production
+        $stack->push(function($app){
+            return new CallableHttpKernel(function(){
+                return new Response('random layer', 200);
+            });
+        });
+
+        $app = $stack->resolve($app);
+
+        $this->app = $app;
+
+        $request = Request::create('/');
+        $response = $this->app->handle($request);
+
+        $this->assertTrue($was_this_called);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('random layer', $response->getContent());
 
     }
 
