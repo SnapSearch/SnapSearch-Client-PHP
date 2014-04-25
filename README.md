@@ -129,7 +129,7 @@ $response = [
             ]
         ]
     ],
-    'screensot'         => 'BASE64 ENCODED IMAGE CONTENT',
+    'screenshot'        => 'BASE64 ENCODED IMAGE CONTENT',
     'status'            => 200
 ]
 ```
@@ -149,20 +149,23 @@ $whitelisted_routes = array(
     //add your white listed routes if you have any...
 );
 
+$check_file_extensions = //if you wish for SnapSearchClient to check if the URL leads to a static file, switch this on to a boolean true, however this is expensive and time consuming, so it's better to use black listed or white listed routes
+
 $symfony_http_request_object = //get the Symfony\Component\HttpFoundation\Request
 
-$robot_json_path = //if you have a custom Robots.json you can choose to use that instead, use the absolute path
+$robot_json_path = //if you have a custom robots.json you can choose to use that instead, use the absolute path
 
-$check_static_files = //if you wish for SnapSearchClient to check if the URL leads to a static file, switch this on to a boolean true, however this is expensive and time consuming, so it's better to use black listed or white listed routes
+$extensions_json_path = //if you have a custom extensions.json you can choose hat insead, use the absolute path
 
 $client = new \SnapSearchClientPHP\Client('email', 'key', $request_parameters);
 
 $detector = new \SnapSearchClientPHP\Detector(
     $blacklisted_routes, 
     $whitelisted_routes, 
+    $check_file_extensions,
     $symfony_http_request_object,
     $robot_json_path,
-    $check_static_files
+    $extensions_json_path
 );
 
 //robots can be direct accessed and manipulated
