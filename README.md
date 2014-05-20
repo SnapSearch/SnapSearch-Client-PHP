@@ -70,7 +70,7 @@ $interceptor = new \SnapSearchClientPHP\Interceptor($client, $detector);
 //exceptions should be ignored in production, but during development you can check it for validation errors
 try{
 
-    $response = $this->interceptor->intercept();
+    $response = $interceptor->intercept();
 
 }catch(SnapSearchClientPHP\SnapSearchException $e){}
 
@@ -202,7 +202,7 @@ $interceptor->before_intercept(function($url) use ($cache){
 //exceptions should be ignored in production, but during development you can check it for validation errors
 try{
 
-    $response = $this->interceptor->intercept();
+    $response = $interceptor->intercept();
 
 }catch(SnapSearchClientPHP\SnapSearchException $e){}
 
